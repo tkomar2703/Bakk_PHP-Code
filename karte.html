@@ -29,21 +29,25 @@ var layer_mapnik;
 var layer_tah;
 var layer_markers;
 
-		function error() {
+		function error() { // für Benutzer Koordinatenabfrage
             alert("Die Positionsbestimmung ist Fehlgeschlagen!")
+			var lon = 47;
+			var lat = 15;
+			var zoom = 7;
+			jumpTo(lon, lat, zoom);
         }   
          
-        function success(pos){
+        function success(pos){ // für Benutzer Koordinatenabfrage
 				var lon = pos.coords.longitude;
 				var lat = pos.coords.latitude;
 				var acc = pos.coords.accuracy;
 				var zoom = 7;
-				jumpTo(lon, lat, zoom);
+				jumpTo(lon, lat, zoom); // zu Benutzerkoordinaten wechseln
 				var popuptext="<font color=\"black\"><b>Derzeitige ungefähre Position</b><br>Geografische Länge: "+lon.toFixed(4)+" °<br>Geografische Breite: "+lat.toFixed(4)+" °<br>Genauigkeit: "+acc+" m</p></font>";
 				addMarker(layer_markers, lon, lat, popuptext);
         }       
          
-function drawmap() {
+function drawmap() { // OSM Karte erstellen
 
     OpenLayers.Lang.setCode('de');
     
@@ -73,6 +77,10 @@ function drawmap() {
 
         }else{
             alert("Geoortung wird nicht unterstützt!");
+			var lon = 47;
+			var lat = 15;
+			var zoom = 7;
+			jumpTo(lon, lat, zoom);
         }
 
 }
