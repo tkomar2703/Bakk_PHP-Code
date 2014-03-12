@@ -39,35 +39,54 @@
 		?>
 		<table border="0">
 			<tr>
-				<th colspan="4">Bounding Box:</th>
+				<th colspan="5">Bounding Box:</th>
 			</tr>
 			<tr><td>&nbsp;</td></tr>
 			<tr>
-				<td align="center" width="100">West:</td><td align="left" width="100"><?php echo $left; ?> &deg;</td><td align="center" width="100">Ost:</td><td align="left" width="100"><?php echo $right; ?> &deg;</td>
+				<td align="left" width="80">West:</td><td align="center" width="80"><?php echo $left; ?> &deg;</td><td width="80"></td><td align="left" width="80">Ost:</td><td align="center" width="80"><?php echo $right; ?> &deg;</td>
 			</tr>
 			<tr>
-				<td align="center">Nord:</td><td><?php echo $top; ?> &deg;</td><td align="center">S&uuml;d:</td><td><?php echo $bot; ?> &deg;</td>
+				<td align="left">Nord:</td><td align="center"><?php echo $top; ?> &deg;</td></td><td width="80"></td><td align="left">S&uuml;d:</td><td align="center"><?php echo $bot; ?> &deg;</td>
 			</tr>
 		</table>
 		<?php
 		
+		$dir_osm = 'D:/Bakk/osmosis-latest/bin';
+		$dir_daten = 'D:/Bakk/Daten';
+		$dir_wget = 'D:/Bakk/GnuWin32/bin';
+
+		$datei_handle=fopen($dir_daten."/overpass_api.xml","w+");
+		fwrite($datei_handle,"<osm-script>\r\n<union>\r\n<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>\r\n<recurse type=\"up\"/>\r\n</union>\r\n<print mode=\"meta\" order=\"quadtile\"/>\r\n</osm-script>");
+		fclose($datei_handle);
+		
+		
 		//echo "<b>Bounding Box:<b> <br/> West: ".$left."\tOst: ".$right."<br/>Nord: ".$top."\tSüd: ".$bot; }
 		set_time_limit(0); // ansonsten nach 30 Sekunden abbruch
 		//$rueck = " 2>&1"; // Rückgabewert der Tools umleiten
-		$dir = 'D:/Bakk/osmosis-latest/bin';
-		//$befehl = '"'.$dir.'\osmosis" --read-pbf file="'.$dir.'\australia-oceania-latest.osm.pbf" --bounding-polygon file='.$dir.'"\country.poly" --write-xml file='.$dir.'"\australia.osm"'.$rueck;
-		$befehl = sprintf(
-			'%s --read-pbf file=%s --bounding-box top='.$top.' bottom='.$bot.' right='.$right.' left='.$left.' --write-xml file=%s 2>&1', // "2>&1" Rückgabewert der Tools anzeigen
-			escapeshellarg($dir . '/osmosis'),
-			escapeshellarg($dir . '/australia-oceania-latest.osm.pbf'),
-			//escapeshellarg($dir . '/country.poly'),
-			escapeshellarg($dir . '/australia_php.osm')
+
+		$befehl_overpass = sprintf(
+			'%s www.overpass-api.de/api/interpreter --ignore-length --post-file=%s -O %s',
+			escapeshellarg($dir_wget . '/wget'),
+			escapeshellarg($dir_daten . '/overpass_api.xml'),
+			escapeshellarg($dir_daten . '/output_overpass.osm.pbf')
 			);
+		//$befehl = '"'.$dir.'\osmosis" --read-pbf file="'.$dir.'\australia-oceania-latest.osm.pbf" --bounding-polygon file='.$dir.'"\country.poly" --write-xml file='.$dir.'"\australia.osm"'.$rueck;
+		//$befehl = sprintf(
+		//	'%s --read-pbf file=%s --bounding-box top='.$top.' bottom='.$bot.' right='.$right.' left='.$left.' --write-xml file=%s 2>&1', // "2>&1" Rückgabewert der Tools anzeigen
+		//	escapeshellarg($dir_osm . '/osmosis'),
+		//	escapeshellarg($dir_osm . '/my.osm.pbf'),
+			//escapeshellarg($dir_osm . '/country.poly'),
+		//	escapeshellarg($dir_osm . '/australia_php.osm')
+		//	);
 		
 		//echo "$befehl";
 		//$output = shell_exec('"D:\Bakk\osmosis-latest\bin\osmosis" --read-pbf file="D:\Bakk\osmosis-latest\bin\australia-oceania-latest.osm.pbf" --bounding-polygon file="D:\Bakk\osmosis-latest\bin\country.poly" --write-xml file="D:\Bakk\osmosis-latest\bin\australia.osm" 2>&1');  
-		$output = shell_exec($befehl);  
-		echo "$output";
+		$output_overpass = shell_exec($befehl_overpass);  
+		//echo "$befehl_overpass";
+		echo "$output_overpass";
+		
+		//$output = shell_exec($befehl);  
+		//echo "$output";
 	}
 	?>		
 	</body>	
