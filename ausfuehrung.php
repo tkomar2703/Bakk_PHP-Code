@@ -43,7 +43,7 @@
 			</tr>
 			<tr><td>&nbsp;</td></tr>
 			<tr>
-				<td align="left" width="80">West:</td><td align="center" width="80"><?php echo $left; ?> &deg;</td><td width="80"></td><td align="left" width="80">Ost:</td><td align="center" width="80"><?php echo $right; ?> &deg;</td>
+				<td align="left" width="80">West:</td><td align="center" width="150"><?php echo $left; ?> &deg;</td><td width="80"></td><td align="left" width="80">Ost:</td><td align="center" width="150"><?php echo $right; ?> &deg;</td>
 			</tr>
 			<tr>
 				<td align="left">Nord:</td><td align="center"><?php echo $top; ?> &deg;</td></td><td width="80"></td><td align="left">S&uuml;d:</td><td align="center"><?php echo $bot; ?> &deg;</td>
@@ -89,5 +89,9 @@
 		//echo "$output";
 	}
 	?>		
+	<form action = "karte.html" method = "GET">
+	Noch etwas exportieren?
+	<input type="submit" value="OK"\>
+	</form>
 	</body>	
 </html>
