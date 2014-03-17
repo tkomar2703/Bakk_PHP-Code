@@ -54,6 +54,7 @@
 		$dir_osm = 'D:/Bakk/osmosis-latest/bin';
 		$dir_daten = 'D:/Bakk/Daten';
 		$dir_wget = 'D:/Bakk/GnuWin32/bin';
+		$dir_convert = 'D:/Bakk';
 
 		$datei_handle=fopen($dir_daten."/overpass_api.xml","w+");
 		fwrite($datei_handle,"<osm-script>\r\n<union>\r\n<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>\r\n<recurse type=\"up\"/>\r\n</union>\r\n<print mode=\"meta\" order=\"quadtile\"/>\r\n</osm-script>");
@@ -62,7 +63,7 @@
 		
 		//echo "<b>Bounding Box:<b> <br/> West: ".$left."\tOst: ".$right."<br/>Nord: ".$top."\tSüd: ".$bot; }
 		set_time_limit(0); // ansonsten nach 30 Sekunden abbruch
-		//$rueck = " 2>&1"; // Rückgabewert der Tools umleiten
+		$rueck = " 2>&1"; // Rückgabewert der Tools umleiten
 
 		$befehl_overpass = sprintf(
 			'%s www.overpass-api.de/api/interpreter --ignore-length --post-file=%s -O %s',
@@ -81,9 +82,18 @@
 		
 		//echo "$befehl";
 		//$output = shell_exec('"D:\Bakk\osmosis-latest\bin\osmosis" --read-pbf file="D:\Bakk\osmosis-latest\bin\australia-oceania-latest.osm.pbf" --bounding-polygon file="D:\Bakk\osmosis-latest\bin\country.poly" --write-xml file="D:\Bakk\osmosis-latest\bin\australia.osm" 2>&1');  
-		$output_overpass = shell_exec($befehl_overpass);  
+		$output_overpass = shell_exec($befehl_overpass);  // Export mittels wget/Overpass-AP		
 		//echo "$befehl_overpass";
 		echo "$output_overpass";
+		
+		$befehl_convert = sprintf(
+			'%s %s -o=%s',
+			escapeshellarg($dir_convert . '/osmconvert'),
+			escapeshellarg($dir_daten . '/output_overpass.osm.pbf'),
+			escapeshellarg($dir_daten . '/output_convert.o5m')
+			);
+		$output_convert = shell_exec("$befehl_convert $rueck");
+		echo "$output_convert";
 		
 		//$output = shell_exec($befehl);  
 		//echo "$output";
