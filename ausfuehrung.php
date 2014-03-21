@@ -18,6 +18,26 @@
 	$lon2 = $_GET["lon2"];
 	$lat2 = $_GET["lat2"];
 	
+	//$test = (isset($_GET['tag']) ? $_GET['tag'] : -1);
+	if (isset($_GET['tag']))
+	{
+	$tag = $_GET["tag"];
+	$tag_ausw = implode(' ',$tag);
+	echo "$tag_ausw<br/>";
+	echo "$tag[0]<br/>";
+	$anz = count($tag);
+	echo "$anz<br/>";}
+	else
+	{echo "test";}
+    //var_dump($id);
+	//$ausstattung = $_GET['ausstattung'];
+	//$tag = $_GET["tag"];
+	//$tag_ausw = implode(', ',$tag);
+	
+	//echo "$test";
+	//echo "$tag_ausw";
+	
+	
 	if ($lat1 > $lat2) {
 		$top = $lat1;
 		$bot = $lat2;}
@@ -54,7 +74,7 @@
 		$dir_osm = 'D:/Bakk/osmosis-latest/bin';
 		$dir_daten = 'D:/Bakk/Daten';
 		$dir_wget = 'D:/Bakk/GnuWin32/bin';
-		$dir_convert = 'D:/Bakk';
+		$dir_convert_filter = 'D:/Bakk';
 
 		$datei_handle=fopen($dir_daten."/overpass_api.xml","w+");
 		fwrite($datei_handle,"<osm-script>\r\n<union>\r\n<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>\r\n<recurse type=\"up\"/>\r\n</union>\r\n<print mode=\"meta\" order=\"quadtile\"/>\r\n</osm-script>");
@@ -86,17 +106,26 @@
 		//echo "$befehl_overpass";
 		echo "$output_overpass";
 		
-		$befehl_convert = sprintf(
+		$befehl_convert_to_o5m = sprintf(
 			'%s %s -o=%s',
-			escapeshellarg($dir_convert . '/osmconvert'),
+			escapeshellarg($dir_convert_filter . '/osmconvert'),
 			escapeshellarg($dir_daten . '/output_overpass.osm.pbf'),
 			escapeshellarg($dir_daten . '/output_convert.o5m')
+			//escapeshellarg($dir_daten . '/output_convert.osm')
 			);
-		$output_convert = shell_exec("$befehl_convert $rueck");
+		$output_convert = shell_exec("$befehl_convert_to_o5m");
 		echo "$output_convert";
 		
+		$befehl_filter = sprintf(
+			"%s %s --keep=\"$tag_ausw\" -o=%s",
+			escapeshellarg($dir_convert_filter . '/osmfilter'),
+			escapeshellarg($dir_daten . '/output_convert.o5m'),
+			escapeshellarg($dir_daten . '/output_filter.osm')
+			);
+		$output_convert = shell_exec("$befehl_filter $rueck");
 		//$output = shell_exec($befehl);  
-		//echo "$output";
+		echo $befehl_filter;
+		echo "$output_convert";
 	}
 	?>		
 	<form action = "karte.html" method = "GET">

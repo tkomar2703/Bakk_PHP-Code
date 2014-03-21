@@ -150,7 +150,7 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
                 trigger: function(e) {
             // In GPS Koordinaten umwandeln
             lonlat = map.getLonLatFromViewPortPx(e.xy).transform(new OpenLayers.Projection("EPSG:900913"), new OpenLayers.Projection("EPSG:4326"));
-			if (document.bounding.ZuTesten[0].checked == true) {
+			if (document.bounding.punkt_ausw[0].checked == true) {
 				var js_lat1 = lonlat.lat.toFixed(6);
 				var js_lon1 = lonlat.lon.toFixed(6);
 			    document.getElementById("lat1").value = js_lat1;
@@ -330,17 +330,23 @@ function init(){
 <h4>bei Klick in die Karte: Radio Button entsprechend auswählen</h4>
 <form name = "bounding" action = "ausfuehrung.php" method = "GET">
 	<b>1. Punkt</b> <br/>
-	<input type="radio" name="ZuTesten" value="Test1" checked="checked" onclick="Check()"></input>
+	<input type="radio" name="punkt_ausw" value="punkt1" checked="checked" onclick="Check()"></input>
 	Geografische Länge:
 	<input type="text" id="lon1" name="lon1" size="10" maxlength="10">
 	Geografische Breite:
 	<input type="text" id="lat1" name="lat1" size="10" maxlength="10"><br/>
 	<b>2. Punkt</b> <br/>
-	<input type="radio" name="ZuTesten" value="Test2" onclick="Check()"></input>
+	<input type="radio" name="punkt_ausw" value="punkt2" onclick="Check()"></input>
 	Geografische Länge:
 	<input type="text" id="lon2" name="lon2" size="10" maxlength="10">
 	Geografische Breite:
 	<input type="text" id="lat2" name="lat2" size="10" maxlength="10"><br/>
+	Wald:
+	<input type="checkbox" name="tag[]" value="landuse=forest" ></input><br/>
+	Straße:
+	<input type="checkbox" name="tag[]" value="highway=track" ></input><br/>
+	Häuser:
+	<input type="checkbox" name="tag[]" value="building=yes" ></input><br/>
 	
 	<input type="submit" value="OK"\>
 	<input type="reset" value="Abbrechen"\>
