@@ -124,12 +124,44 @@
 			);
 		$output_convert = shell_exec("$befehl_filter $rueck");
 		//$output = shell_exec($befehl);  
-		echo $befehl_filter;
-		echo "$output_convert";
+		//echo $befehl_filter;
+		//echo "$output_convert";
 	}
+	
+
+$zip = new ZipArchive();
+$filename = "$dir_daten/output.zip";
+
+if ($zip->open($filename, ZIPARCHIVE::CREATE)!==TRUE) {
+    exit("cannot open <$filename>\n");
+}
+
+//$zip->addFromString("testfilephp.txt", "#1 This is a test string added as testfilephp.txt.\n");
+//$zip->addFromString("testfilephp2.txt" . time(), "#2 This is a test string added as testfilephp2.txt.\n");
+$anzahl = $zip->numFiles + 1;
+$zip->addFile($dir_daten . "/output_filter.osm","output_filter".$anzahl.".osm");
+
+
+$zip->close();
+
+$dateiname = "/output.zip"; 
+$filesize = filesize($dir_daten.$dateiname);
+ 
+//header("Content-Type: application/octet-stream"); 
+//header("Content-Disposition: attachment; filename=\"$dateiname\""); 
+Header("Content-Length: ".$filesize);  
+//readfile($dateiname); 
 	?>		
 	<form action = "karte.html" method = "GET">
 	Noch etwas exportieren?
+	<input type="submit" value="OK"\>
+	</form>
+	<?php
+	echo "Anzahl Daten: " . $anzahl . "\n";
+	echo "</br>Dateigr&#xF6;&#xDF;e: $filesize Byte"; 
+	?>
+	<form action = "download.php" method = "GET">
+	Datei downloaden?
 	<input type="submit" value="OK"\>
 	</form>
 	</body>	
