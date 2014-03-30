@@ -18,25 +18,19 @@
 	$lon2 = $_GET["lon2"];
 	$lat2 = $_GET["lat2"];
 	
-	//$test = (isset($_GET['tag']) ? $_GET['tag'] : -1);
-	if (isset($_GET['tag']))
+	if (isset($_GET['tag'])) // welche Tags wurden ausgewählt
 	{
-	$tag = $_GET["tag"];
-	$tag_ausw = implode(' ',$tag);
-	echo "$tag_ausw<br/>";
-	echo "$tag[0]<br/>";
-	$anz = count($tag);
-	echo "$anz<br/>";}
-	else
-	{echo "test";}
-    //var_dump($id);
-	//$ausstattung = $_GET['ausstattung'];
-	//$tag = $_GET["tag"];
-	//$tag_ausw = implode(', ',$tag);
+		$tag = $_GET["tag"];
+		$tag_ausw = implode(' ',$tag);
+		$anz = count($tag);
+	}
 	
-	//echo "$test";
-	//echo "$tag_ausw";
-	
+	if (isset($_GET['typ'])) // Export als Shape und/oder OSM
+	{
+		$typ = $_GET["typ"];
+		$typ_ausw = implode(' ',$typ);
+		$anz_typ = count($typ);
+	}
 	
 	if ($lat1 > $lat2) {
 		$top = $lat1;
@@ -75,9 +69,10 @@
 		$dir_daten = 'D:/Bakk/Daten';
 		$dir_wget = 'D:/Bakk/GnuWin32/bin';
 		$dir_convert_filter = 'D:/Bakk';
+		$dir_ogr2ogr = 'D:\Bakk\ogr2ogr';
 
 		$datei_handle=fopen($dir_daten."/overpass_api.xml","w+");
-		fwrite($datei_handle,"<osm-script>\r\n<union>\r\n<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>\r\n<recurse type=\"up\"/>\r\n</union>\r\n<print mode=\"meta\" order=\"quadtile\"/>\r\n</osm-script>");
+		fwrite($datei_handle,"<osm-script>\r\n<union>\r\n<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>\r\n<recurse type=\"up\"/><recurse type=\"down\"/>\r\n</union>\r\n<print mode=\"meta\" order=\"quadtile\"/>\r\n</osm-script>");
 		fclose($datei_handle);
 		
 		
@@ -115,19 +110,45 @@
 			);
 		$output_convert = shell_exec("$befehl_convert_to_o5m");
 		echo "$output_convert";
-		
-		$befehl_filter = sprintf(
+	if (isset($tag))
+		{
+			$befehl_filter = sprintf(
 			"%s %s --keep=\"$tag_ausw\" -o=%s",
 			escapeshellarg($dir_convert_filter . '/osmfilter'),
 			escapeshellarg($dir_daten . '/output_convert.o5m'),
 			escapeshellarg($dir_daten . '/output_filter.osm')
 			);
+		}
+		else
+		{
+			$befehl_filter = sprintf(
+			"%s %s -o=%s",
+			escapeshellarg($dir_convert_filter . '/osmfilter'),
+			escapeshellarg($dir_daten . '/output_convert.o5m'),
+			escapeshellarg($dir_daten . '/output_filter.osm')
+			);
+		}
 		$output_convert = shell_exec("$befehl_filter $rueck");
 		//$output = shell_exec($befehl);  
 		//echo $befehl_filter;
 		//echo "$output_convert";
 	}
 	
+			$befehl1_ogr2ogr = sprintf(
+			"%s par",
+			escapeshellarg($dir_ogr2ogr . '/SDKShell.bat')
+			);
+	
+			$befehl2_ogr2ogr = sprintf(
+			"SET par=ogr2ogr -f \"ESRI Shapefile\" %s %s multipolygons lines points multilinestrings --config OSM_USE_CUSTOM_INDEXING NO",
+			escapeshellarg($dir_daten . '/output_shape'),
+			escapeshellarg($dir_daten . '/output_filter.osm')
+			);
+		$output_ogr2ogr = shell_exec("$befehl2_ogr2ogr && $befehl1_ogr2ogr");
+		//echo $befehl_ogr2ogr;
+		//echo $output_ogr2ogr;
+	//switch ($typ_ausw) {
+	//case "shp":	
 
 $zip = new ZipArchive();
 $filename = "$dir_daten/output.zip";
@@ -136,8 +157,6 @@ if ($zip->open($filename, ZIPARCHIVE::CREATE)!==TRUE) {
     exit("cannot open <$filename>\n");
 }
 
-//$zip->addFromString("testfilephp.txt", "#1 This is a test string added as testfilephp.txt.\n");
-//$zip->addFromString("testfilephp2.txt" . time(), "#2 This is a test string added as testfilephp2.txt.\n");
 $anzahl = $zip->numFiles + 1;
 $zip->addFile($dir_daten . "/output_filter.osm","output_filter".$anzahl.".osm");
 
@@ -147,10 +166,6 @@ $zip->close();
 $dateiname = "/output.zip"; 
 $filesize = filesize($dir_daten.$dateiname);
  
-//header("Content-Type: application/octet-stream"); 
-//header("Content-Disposition: attachment; filename=\"$dateiname\""); 
-Header("Content-Length: ".$filesize);  
-//readfile($dateiname); 
 	?>		
 	<form action = "karte.html" method = "GET">
 	Noch etwas exportieren?

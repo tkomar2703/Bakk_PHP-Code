@@ -1,117 +1,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+<html>
 <head>
-<title>Rechteck Beispiel</title>
-<meta http-equiv="content-type" content="text/html;charset={{charset}}" />
-<meta http-equiv="content-script-type" content="text/javascript" />
-<meta http-equiv="content-style-type" content="text/css" />
-<meta http-equiv="content-language" content="de" />
-
-<!-- Externe Scripte -->
-<!-- OpenLayers API (stellt die OpenLayers Funktionen bereit) -->
-<script type="text/javascript" src="http://www.openlayers.org/api/OpenLayers.js"></script>
-<!-- OpenStreetMap Klassen (ermöglicht das einfache Einbinden der OSM-Karten) -->
-<script type="text/javascript" src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
-<script type="text/javascript">
-    //<![CDATA[
-
-
-// Hilfsfunktionen
-function jumpTo(lon, lat, zoom) {
-    var x = Lon2Merc(lon);
-    var y = Lat2Merc(lat);
-    map.setCenter(new OpenLayers.LonLat(x, y), zoom);
-    return false;
-}
- 
-function Lon2Merc(lon) {
-    return 20037508.34 * lon / 180;
-}
- 
-function Lat2Merc(lat) {
-    var PI = 3.14159265358979323846;
-    lat = Math.log(Math.tan( (90 + lat) * PI / 360)) / (PI / 180);
-    return 20037508.34 * lat / 180;
-}
-
-var map;
-
-/*
- * Die Erstellung der Karte, sobald die Seite fertig geladen ist.
- */
-function drawmap() {
-    OpenLayers.Lang.setCode('de');
-    
-    map = new OpenLayers.Map('map', {
-        projection: new OpenLayers.Projection("EPSG:900913"),
-    displayProjection: new OpenLayers.Projection("EPSG:4326"),
-    controls: [
-        new OpenLayers.Control.MouseDefaults(),
-        new OpenLayers.Control.Attribution()],
-    maxExtent:
-    new OpenLayers.Bounds(-20037508.34,-20037508.34,
-                                    20037508.34, 20037508.34),
-    numZoomLevels: 18,
-    maxResolution: 156543,
-    units: 'meters'
-    });
-
-    // Noch mehr Kontrollelemente hinzufügen..
-    map.addControl(new OpenLayers.Control.LayerSwitcher());
-    map.addControl(new OpenLayers.Control.PanZoomBar());
-
-    // Position und Zoomstufe der Karte
-    lon = 9;
-    lat = 49;
-    zoom = 6; 
-
-    // Layer hinzufügen (OpenStreetMap Mapnik)
-    //layer_layerMapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
-    //map.addLayer(layer_layerMapnik);
-    //layer_vectors = new OpenLayers.Layer.Vector("Zeichnungen", { displayInLayerSwitcher: false } );
-    //map.addLayer(layer_vectors);
-
-    // An die richtige Stelle springen..
-    jumpTo(lon,lat,zoom);
-
-    polyOptions = {sides: 4, snapAngle: 45};
-    polygonControl = new OpenLayers.Control.DrawFeature(
-        layer_vectors,
-        OpenLayers.Handler.RegularPolygon,
-        {handlerOptions: polyOptions}
-    );
-    // Handler Funktion die reagiert wenn das Rechteck hinzugefügt wurde
-    polygonControl.featureAdded = function(feature) {
-        var a = feature.geometry.getBounds().transform(new OpenLayers.Projection("EPSG:900913"), new OpenLayers.Projection("EPSG:4326")).toArray();
-        polygonControl.deactivate();
-        document.getElementById("left").value = a[0];            
-        document.getElementById("bottom").value = a[1];
-        document.getElementById("right").value = a[2];
-        document.getElementById("top").value = a[3];
-    }
-    map.addControl(polygonControl);
-}
-
-/*
- * Funktion die das Zeichnen aktiviert.
- */
-function selectBox() {
-    layer_vectors.destroyFeatures();
-    polygonControl.activate();
-}
-
-
-//]]>
-    </script>
+Test
 </head>
-<body onload="drawmap();">
-    <!-- Karte (CSS könnte auch ausgelagert werden) -->
-    <div id="map" style="width:400px;height:400px;"></div>
-    <!-- Beispielformularfelder (sollte natürlich noch richtig in ein Formular) -->
-    Left: <input type="text" value="" id="left" />
-    Top: <input type="text" value="" id="top" />
-    Right: <input type="text" value="" id="right" />
-    Bottom: <input type="text" value="" id="bottom" />
-    <a href="javascript:selectBox()">Click to select new box</a>
+<body>
+
+<?php
+$output_convert = shell_exec("SET par=ogr2ogr -f \"ESRI Shapefile\" \"D:/Bakk/Daten/output_filter\" \"D:/Bakk/Daten/output_filter.osm\" multipolygons --config OSM_USE_CUSTOM_INDEXING NO");
+$output_convert = shell_exec("CALL D:\Bakk\ogr2ogr\SDKShell.bat par");
+
+?>
+
 </body>
 </html>
