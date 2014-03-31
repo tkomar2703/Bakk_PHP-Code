@@ -56,7 +56,7 @@ function Lat2Merc(lat) {
 				var lon = pos.coords.longitude;
 				var lat = pos.coords.latitude;
 				var acc = pos.coords.accuracy;
-				var zoom = 7;
+				var zoom = 12;
 				jumpTo(lon, lat, zoom); // zu Benutzerkoordinaten wechseln
 				var popuptext="<font color=\"black\"><b>Derzeitige ungefähre Position</b><br>Geografische Länge: "+lon.toFixed(4)+" °<br>Geografische Breite: "+lat.toFixed(4)+" °<br>Genauigkeit: "+acc+" m</p></font>";
 				addMarker(layer_markers, lon, lat, popuptext);
@@ -344,9 +344,9 @@ function init(){
 	Wald:
 	<input type="checkbox" name="tag[]" value="landuse=forest" ></input><br/>
 	Straße:
-	<input type="checkbox" name="tag[]" value="highway=track" ></input><br/>
+	<input type="checkbox" name="tag[]" value="highway=" ></input><br/>
 	Häuser:
-	<input type="checkbox" name="tag[]" value="building=yes" ></input><br/>
+	<input type="checkbox" name="tag[]" value="building=" ></input><br/>
 	
 	<b>Export als</b><br/>
 	Shapefile (.shp):
