@@ -18,7 +18,6 @@
 <script type="text/javascript" src="tom.js"></script>
 
 <script type="text/javascript">
-//<![CDATA[
 
 var map;
 var layer_mapnik;
@@ -27,54 +26,37 @@ var layer_markers;
 var lonlat;
 var js_lon2;
 
-//function jumpTo(lon, lat, zoom) {
-//    var x = Lon2Merc(lon);
-//    var y = Lat2Merc(lat);
-//    map.setCenter(new OpenLayers.LonLat(x, y), zoom);
-//    return false;
-//}
- 
-function Lon2Merc(lon) {
-    return 20037508.34 * lon / 180;
-}
- 
-function Lat2Merc(lat) {
-    var PI = 3.14159265358979323846;
-    lat = Math.log(Math.tan( (90 + lat) * PI / 360)) / (PI / 180);
-    return 20037508.34 * lat / 180;
-}
-
-		function error() { // für Benutzer Koordinatenabfrage
-            alert("Die Positionsbestimmung ist Fehlgeschlagen!")
-			var lon = 47;
-			var lat = 15;
-			var zoom = 7;
-			jumpTo(lon, lat, zoom);
-        }   
+function error() { // für Benutzer Koordinatenabfrage
+    alert("Die Positionsbestimmung ist Fehlgeschlagen!")
+	var lon = 47;
+	var lat = 15;
+	var zoom = 7;
+	jumpTo(lon, lat, zoom);
+}   
          
-        function success(pos){ // für Benutzer Koordinatenabfrage
-				var lon = pos.coords.longitude;
-				var lat = pos.coords.latitude;
-				var acc = pos.coords.accuracy;
-				var zoom = 12;
-				jumpTo(lon, lat, zoom); // zu Benutzerkoordinaten wechseln
-				var popuptext="<font color=\"black\"><b>Derzeitige ungefähre Position</b><br>Geografische Länge: "+lon.toFixed(4)+" °<br>Geografische Breite: "+lat.toFixed(4)+" °<br>Genauigkeit: "+acc+" m</p></font>";
-				addMarker(layer_markers, lon, lat, popuptext);
-        }       
+function success(pos){ // für Benutzer Koordinatenabfrage
+	var lon = pos.coords.longitude;
+	var lat = pos.coords.latitude;
+	var acc = pos.coords.accuracy;
+	var zoom = 12;
+	jumpTo(lon, lat, zoom); // zu Benutzerkoordinaten wechseln
+	var popuptext="<font color=\"black\"><b>Derzeitige ungefähre Position</b><br>Geografische Länge: "+lon.toFixed(4)+" °<br>Geografische Breite: "+lat.toFixed(4)+" °<br>Genauigkeit: "+acc+" m</p></font>";
+	addMarker(layer_markers, lon, lat, popuptext);
+}       
          
 function drawmap() { // OSM Karte erstellen
 
     OpenLayers.Lang.setCode('de');
     
-       map = new OpenLayers.Map('map', {
-        projection: new OpenLayers.Projection("EPSG:900913"),
-        displayProjection: new OpenLayers.Projection("EPSG:4326"),
-        controls: [
-            new OpenLayers.Control.Navigation(),
+    map = new OpenLayers.Map('map', {
+    projection: new OpenLayers.Projection("EPSG:900913"),
+    displayProjection: new OpenLayers.Projection("EPSG:4326"),
+    controls: [
+        new OpenLayers.Control.Navigation(),
         //  new OpenLayers.Control.LayerSwitcher(),
 		//	new OpenLayers.Control.MouseDefaults(),
 		//	new OpenLayers.Control.Attribution(),
-            new OpenLayers.Control.PanZoomBar()],
+        new OpenLayers.Control.PanZoomBar()],
         maxExtent:
             new OpenLayers.Bounds(-20037508.34,-20037508.34,
                                     20037508.34, 20037508.34),
@@ -89,154 +71,95 @@ function drawmap() { // OSM Karte erstellen
 
     map.addLayers([layer_mapnik, layer_markers]);
 
-		if (navigator.geolocation){
-            navigator.geolocation.getCurrentPosition(success, error);	
+	if (navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(success, error);	
+	}
+	else {
+        alert("Geoortung wird nicht unterstützt!");
+		var lon = 47;
+		var lat = 15;
+		var zoom = 7;
+		jumpTo(lon, lat, zoom);
+    }
 
-        }else{
-            alert("Geoortung wird nicht unterstützt!");
-			var lon = 47;
-			var lat = 15;
-			var zoom = 7;
-			jumpTo(lon, lat, zoom);
-        }
-		
-//		    polyOptions = {sides: 4, snapAngle: 45};
-//    polygonControl = new OpenLayers.Control.DrawFeature(
-//        layer_vectors,
-//        OpenLayers.Handler.RegularPolygon,
-//        {handlerOptions: polyOptions}
-//    );
-    // Handler Funktion die reagiert wenn das Rechteck hinzugefügt wurde
-   // polygonControl.featureAdded = function(feature) {
-     //   var a = feature.geometry.getBounds().transform(new OpenLayers.Projection("EPSG:900913"), new OpenLayers.Projection("EPSG:4326")).toArray();
-       // polygonControl.deactivate();
-       // document.getElementById("left").value = a[0];            
-       // document.getElementById("bottom").value = a[1];
-       // document.getElementById("right").value = a[2];
-       // document.getElementById("top").value = a[3];
-    //}
 	click = new OpenLayers.Control.Click();
     map.addControl(click);
-	click.activate();
-
-
-   // map.addControl(polygonControl);
-	
+	click.activate();	
 }
 
-OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {              
-                defaultHandlerOptions: {
-                    'single': true,
-                    'double': false,
-                    'pixelTolerance': 0,
-                    'stopSingle': false,
-                    'stopDouble': false
-                },
+// Koordinaten aus Karte holen und in Felder eintragen
+OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {             
+    defaultHandlerOptions: {
+        'single': true,
+        'double': false,
+        'pixelTolerance': 0,
+        'stopSingle': false,
+        'stopDouble': false
+    },
 
-                initialize: function(options) {
-                    this.handlerOptions = OpenLayers.Util.extend(
-                        {}, this.defaultHandlerOptions
-                    );
-                    OpenLayers.Control.prototype.initialize.apply(
-                        this, arguments
-                    ); 
-                    this.handler = new OpenLayers.Handler.Click(
-                        this, {
-                            'click': this.trigger
-                        }, this.handlerOptions
-                    );
-                }, 
+    initialize: function(options) {
+        this.handlerOptions = OpenLayers.Util.extend(
+        {}, this.defaultHandlerOptions
+        );
+        OpenLayers.Control.prototype.initialize.apply(
+        this, arguments
+        ); 
+        this.handler = new OpenLayers.Handler.Click(
+        this, {
+        'click': this.trigger
+        }, this.handlerOptions
+        );
+    }, 
 
-                trigger: function(e) {
-            // In GPS Koordinaten umwandeln
-            lonlat = map.getLonLatFromViewPortPx(e.xy).transform(new OpenLayers.Projection("EPSG:900913"), new OpenLayers.Projection("EPSG:4326"));
-			if (document.bounding.punkt_ausw[0].checked == true) {
-				var js_lat1 = lonlat.lat.toFixed(6);
-				var js_lon1 = lonlat.lon.toFixed(6);
-			    document.getElementById("lat1").value = js_lat1;
-				document.getElementById("lon1").value = js_lon1;
-//var markerlayer = new OpenLayers.Layer.Vector("Marker");
-//marker = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat));
-//markerlayer.addFeatures([marker]);
-//marker.move(new OpenLayers.LonLat(lonlat.lon,lonlat.lat));								
-					
-				//var marker1 = addMarker(layer_markers, lonlat.lon, lonlat.lat);
-
+    trigger: function(e) {
+		// Von WGS84 in Mercator Projektion transformieren
+		lonlat = map.getLonLatFromViewPortPx(e.xy).transform(new OpenLayers.Projection("EPSG:900913"), new OpenLayers.Projection("EPSG:4326"));
+		if (document.bounding.punkt_ausw[0].checked == true) { // Koordinaten werden in Textfelder geschrieben
+			var js_lat1 = lonlat.lat.toFixed(6);
+			var js_lon1 = lonlat.lon.toFixed(6);
+			document.getElementById("lat1").value = js_lat1;
+			document.getElementById("lon1").value = js_lon1;
+		}
+		else {
+			var js_lat2 = lonlat.lat.toFixed(6);
+			var js_lon2 = lonlat.lon.toFixed(6);
+			document.getElementById("lat2").value = js_lat2;
+			document.getElementById("lon2").value = js_lon2;
+		}	           
 				
+			// Bounding Box in Karte einzeichnen, wenn 2 Koordinatenpaare vorhanden
+		if ((document.getElementById("lat2").value) != "" && (document.getElementById("lat1").value) != "" && (document.getElementById("lon2").value) != "" && (document.getElementById("lon1").value) != "") {					
+			if (document.getElementById("lon1").value > document.getElementById("lon2").value) {
+				var bb_lon1 = document.getElementById("lon2").value;
+				var bb_lon2 = document.getElementById("lon1").value; 
 			}
 			else {
-				var js_lat2 = lonlat.lat.toFixed(6);
-				var js_lon2 = lonlat.lon.toFixed(6);
-				document.getElementById("lat2").value = js_lat2;
-				document.getElementById("lon2").value = js_lon2;
-				}
-		           
-            // Die Werte in die Textfelder schreiben
-            //document.getElementById("lat").value = lonlat.lat.toFixed(6);
-            //document.getElementById("lon").value = lonlat.lon.toFixed(6);
-                
-				//if ((typeof js_lat1) == "string" && (typeof js_lon1) == "string") //&& (typeof js_lon1) == "string" && (typeof js_lon2) == "string") 
-				//{alert (typeof document.getElementById("lat2").value);}
-				
-				if ((document.getElementById("lat2").value) != "" && (document.getElementById("lat1").value) != "" && (document.getElementById("lon2").value) != "" && (document.getElementById("lon1").value) != "") 
-					{
-					
-//					var map = new OpenLayers.Map(mapDiv, options);
-//var tempLayer = new OpenLayers.Layer.Vector("Temp Layer");
-//map.addLayer(tempLayer);
-
-//var polyControl = new OpenLayers.Control.DrawFeature(tempLayer,OpenLayers.Handler.Polygon);
-
-//polyControl.handler.callbacks.point = function(data) {
-//    if(tempLayer.features.length > 5)
-//    {
-//        tempLayer.removeAllFeatures();
-//    }
-//}
-
-//var regPolyControl = new OpenLayers.Control.DrawFeature(tempLayer,OpenLayers.Handler.RegularPolygon);
-
-//regPolyControl.handler.callbacks.create = function(data) {
-//    if(tempLayer.features.length > 5)
-//    {
-//        tempLayer.removeAllFeatures();
-//    }
-//	}
-					
-					
-				//	destroy: function() {;}
-					if (document.getElementById("lon1").value > document.getElementById("lon2").value)
-						{var bb_lon1 = document.getElementById("lon2").value;
-						 var bb_lon2 = document.getElementById("lon1").value; }
-					else 
-						{var bb_lon1 = document.getElementById("lon1").value;
-						 var bb_lon2 = document.getElementById("lon2").value;}
-						 
-					if (document.getElementById("lat1").value > document.getElementById("lat2").value)
-						{var bb_lat1 = document.getElementById("lat2").value;
-						 var bb_lat2 = document.getElementById("lat1").value;}
-					else 
-						{var bb_lat1 = document.getElementById("lat1").value;
-						 var bb_lat2 = document.getElementById("lat2").value;}	 
-				var box_extents = [[bb_lon1,bb_lat1,bb_lon2,bb_lat2]];
-                var boxes  = new OpenLayers.Layer.Boxes('Boxes');
-                for (var i = 0; i < box_extents.length; i++) {
-                 ext = box_extents[i];
-                 bounds = OpenLayers.Bounds.fromArray(ext);
-                 bounds.transform(new OpenLayers.Projection("EPSG:4326"), new OpenLayers.Projection("EPSG:900913"));
-                 box = new OpenLayers.Marker.Box(bounds);
-                 boxes.addMarker(box);
-                }
-                map.addLayers([boxes]);
-				}
+				var bb_lon1 = document.getElementById("lon1").value;
+				var bb_lon2 = document.getElementById("lon2").value;
 			}
-				
-				
-				
-  //document.write("<p>Schade, Ihr Browser kennt das image-Objekt nicht - Sie verpassen was!<br>");
-//}
-
-            });
+							 
+			if (document.getElementById("lat1").value > document.getElementById("lat2").value) {
+				var bb_lat1 = document.getElementById("lat2").value;
+				var bb_lat2 = document.getElementById("lat1").value;}
+			else {
+				var bb_lat1 = document.getElementById("lat1").value;
+				var bb_lat2 = document.getElementById("lat2").value;
+			}
+			
+			var box_extents = [[bb_lon1,bb_lat1,bb_lon2,bb_lat2]]; // Bounding Box Ecken festlegen
+			var boxes  = new OpenLayers.Layer.Boxes('Boxes');
+			
+			for (var i = 0; i < box_extents.length; i++) {
+				ext = box_extents[i];
+				bounds = OpenLayers.Bounds.fromArray(ext);
+				bounds.transform(new OpenLayers.Projection("EPSG:4326"), new OpenLayers.Projection("EPSG:900913"));
+				box = new OpenLayers.Marker.Box(bounds);
+				boxes.addMarker(box);
+			}
+					map.addLayers([boxes]);
+		}
+	}
+});
 
 
 //var click = document.getElementById('click'),
@@ -271,60 +194,23 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
 //}
 
 //]]>
-function init(){
-
-				//	var theBox = document.getElementById('Boxes');
-				//	theBox.parentNode.removeChild(theBox);
-					
-					//delete layer[boxes];
-					boxes[0].destroyFeatures();
-					alert (typeof document.getElementById("lat2").value);
-             //   var box_extents = [[11,53,12,56],[12.5,53.5,14.5,56.5]];
-             //   var boxes  = new OpenLayers.Layer.Boxes('Boxes');
-             //   for (var i = 0; i < box_extents.length; i++) {
-             //    ext = box_extents[i];
-             //    bounds = OpenLayers.Bounds.fromArray(ext);
-             //    bounds.transform(new OpenLayers.Projection("EPSG:4326"), new OpenLayers.Projection("EPSG:900913"));
-             //    box = new OpenLayers.Marker.Box(bounds);
-             //    boxes.addMarker(box);
-             //   }
-             //   map.addLayers([boxes]);
-				}
-
-    </script>
+</script>
 	
 	
 </head>
   <h2>OSM-Daten exportieren</h2>
   
- <body onload="drawmap();">
+<body onload="drawmap();">
  
-  <div id="header">
-   <div id="content">Karte (Testversion)</div>
-   <div id="osm">© <a href="http://www.openstreetmap.org">OpenStreetMap</a>
-     und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
-     <a href="http://creativecommons.org/licenses/by-sa/2.0/deed.de">CC-BY-SA</a>
-   </div>
-  </div>
-  <!--<div id="map">
-  </div>  -->
+<div id="header">
+<div id="content">Karte (Testversion)</div>
+<div id="osm">© <a href="http://www.openstreetmap.org">OpenStreetMap</a>
+und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
+<a href="http://creativecommons.org/licenses/by-sa/2.0/deed.de">CC-BY-SA</a>
+</div>
+</div>
 
- <!--<style>
-    #output {
-        position: absolute;
-        top: 100px;
-        right: 100px;
-        padding: 10px;
-        background: #aaa;
-        z-index: 100;
-    }
-</style> -->
 <div id='map'></div>
-<!--<div id='output'>
-    click: <code id='click'></code><br/>
-    mousemove: <code id='mousemove'></code><br/>
-</div> -->
-
 
 <h3>Bounding Box durch Koordinateneingabe oder durch Klick in die Karte:</h3>
 <h4>bei Klick in die Karte: Radio Button entsprechend auswählen</h4>
@@ -341,6 +227,8 @@ function init(){
 	<input type="text" id="lon2" name="lon2" size="10" maxlength="10">
 	Geografische Breite:
 	<input type="text" id="lat2" name="lat2" size="10" maxlength="10"><br/>
+	
+	<br/><b>Welche Elemente sollen beibehalten werden?</b> (Wenn nichts ausgewählt -> alles behalten)<br/>
 	Wald:
 	<input type="checkbox" name="tag[]" value="landuse=forest" ></input><br/>
 	Straße:
@@ -348,32 +236,21 @@ function init(){
 	Häuser:
 	<input type="checkbox" name="tag[]" value="building=" ></input><br/>
 	
-	<b>Export als</b><br/>
+	<br/><b>Export als</b><br/>
 	Shapefile (.shp):
 	<input type="checkbox" name="typ[]" value="shp" checked="checked"></input><br/>
 	OpenStreetMap-Datei (.osm):
 	<input type="checkbox" name="typ[]" value="osm" ></input><br/>
 
+	<br/><b>Exportierte Daten löschen?</b> (Auswahl in fertiger Arbeit nicht mehr vorhanden)<br/>
+	Ja:
+	<input type="radio" name="loeschen" value="loesch_ja" checked="checked"></input>
+	Nein:
+	<input type="radio" name="loeschen" value="loesch_nein" ></input><br/>
 	
 	<input type="submit" value="OK"\>
 	<input type="reset" value="Abbrechen"\>
 </form>
-<a href="javascript:init()">Box</a><br>
-<!--	<form action="writeCSV.php" method="post">
-<p>Bitte auf der Karte einen beliebigen Punkt w&auml;hlen, einen POI eintragen und <b>schreiben</b> klicken. Ein klick auf den Marker
-zeigt den eingetragenen POI an.</p>
-    Lat:  <input type="text" name="lat" id="lat" />
-    Lon:  <input type="text" name="lon" id="lon" />
-    POI:  <input type="text" name="poi">
-    <input type="submit" value="schreiben">
-</form> -->
-
-<!--<form name="Testform" action="link.htm">
-<input type="text" size="40" name="Eingabe"><br>
-
-
-<input type="submit" value="Absenden">
-</form> -->
 
 </body>
 </html>

@@ -1,26 +1,21 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta http-equiv="content-script-type" content="text/javascript" />
+<meta http-equiv="content-style-type" content="text/css" />
+<meta http-equiv="content-language" content="de" />
 Test
 </head>
-<body>
+<body onbeforeunload="javascript:alert (Die Positionsbestimmung ist Fehlgeschlagen!);"> 
 
 <?php
-$dir_daten = 'D:/Bakk/Daten';
-$zip_osm = "output_osm.zip";
-$zip_shape = "output_shape.zip";
-$pfad_osm = "$dir_daten/$zip_osm";
-$pfad_shape = "$dir_daten/$zip_shape";
-if (file_exists($pfad_osm) && file_exists($pfad_shape)) {
-        header("Content-Disposition: attachment; filename=\"". urlencode($zip_osm) ."\"");
-	readfile($pfad_osm);
-	unlink(realpath($pfad_osm));
-	header("Content-Disposition: attachment; filename=\"". urlencode($zip_shape) ."\"");
-	readfile($pfad_shape);
-	unlink(realpath($pfad_shape));
-} else {
-    echo "Die Datei existiert nicht";
-}
+
+if (isset($_GET["loeschen"]))
+{echo $_GET["loeschen"];}
+else
+{echo "Du Idiot";}
+
 
 ?>
 
