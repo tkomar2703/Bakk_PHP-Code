@@ -235,6 +235,13 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<input type="checkbox" name="tag[]" value="highway=" ></input><br/>
 	Häuser:
 	<input type="checkbox" name="tag[]" value="building=" ></input><br/>
+	OSM-Filter: keep="Folgender Input" (mit obigen Optionen kombinierbar)<br/>
+	<input type="text" id="keep_eig" name="keep_eig" size="50"><br/>
+	<br/>OSM-Filter: Kompletten Befehl selbst schreiben (Achtung: Obige Optionen werden dabei ignoriert)<br/>
+	<input type="text" id="befehl_eig" name="befehl_eig" size="50"><br/>
+	<u>Beispiel:</u> ./osmfilter norway.osm <font color="#FF0000">--keep="highway=primary =secondary waterway=river"</font> -o=streets.osm<br/>
+	Befehl in <font color="#FF0000">rot</font> selbst formulieren.<br/>
+	Weitere Informationen: <a href="http://wiki.openstreetmap.org/wiki/DE:Osmfilter">OSM Wiki: OSM-Filter</a><br>
 	
 	<br/><b>Export als</b><br/>
 	Shapefile (.shp):
@@ -247,9 +254,11 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<input type="radio" name="loeschen" value="loesch_ja" checked="checked"></input>
 	Nein:
 	<input type="radio" name="loeschen" value="loesch_nein" ></input><br/>
-	
+	<br/>
 	<input type="submit" value="OK"\>
 	<input type="reset" value="Abbrechen"\>
+	<br/>(Mit Klick auf "OK" werden die Daten bereits runtergeladen)<br/>
+	<b>Achtung: Je nach Größe der Bounding Box/Bounding Polygon kann die Verarbeitung mehrere Minuten oder Stunden dauern.<br/><br/><br/><br/>
 </form>
 
 </body>

@@ -60,8 +60,25 @@ if (empty($_GET["lon1"]) || empty($_GET["lon2"]) || empty($_GET["lat1"]) || empt
 if (isset($_GET['tag'])) {// welche Tags wurden ausgewählt
 	$tag = $_GET["tag"];
 	$tag_ausw = implode(' ',$tag);
-	$anz = count($tag);
+//	$anz = count($tag);
 }
+if (!empty($_GET['keep_eig'])) {// Benutzerdefinierter Tag hinzugefügt
+	$keep_eig = $_GET['keep_eig'];
+	if (isset($_GET['tag'])) {
+		$tag_ausw = $tag_ausw." ".$keep_eig;
+	}
+	else {
+		$tag_ausw = $keep_eig;
+	}
+	//echo $tag_ausw;
+//	$tag = $_GET["tag"];
+//	$tag_ausw = implode(' ',$tag);
+//	$anz = count($tag);
+}
+if (!empty($_GET['befehl_eig'])) {// Benutzerdefinierte Tags löschen
+	$befehl_eig = $_GET['befehl_eig'];
+}
+
 	
 if (isset($_GET['typ'])) {// Export als Shape und/oder OSM
 	$typ = $_GET["typ"];
@@ -143,10 +160,18 @@ $befehl_convert_to_o5m = sprintf(
 );
 		
 $output_convert = shell_exec("$befehl_convert_to_o5m");
-//echo "$output_convert";
 
+// Befehl selbst formuliert
+if (isset($befehl_eig)) {
+	$befehl_filter = sprintf(
+	"%s %s $befehl_eig -o=%s",
+	escapeshellarg($dir_convert_filter . '/osmfilter'),
+	escapeshellarg($dir_daten . '/output_convert.o5m'),
+	escapeshellarg($dir_daten . '/output_filter.osm')
+	);
+}
 // Tags ausgewählt?	
-if (isset($tag)) { // ja
+elseif (isset($tag)) { // ja
 	$befehl_filter = sprintf(
 	"%s %s --keep=\"$tag_ausw\" -o=%s",
 	escapeshellarg($dir_convert_filter . '/osmfilter'),
