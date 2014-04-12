@@ -17,6 +17,7 @@
 <script type="text/javascript" src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
 <script type="text/javascript" src="tom.js"></script>
 
+
 <script type="text/javascript">
 
 var map;
@@ -26,10 +27,42 @@ var layer_markers;
 var lonlat;
 var js_lon2;
 
+var polygonLayer;
+var drawControls;
+var control;
       var vectors;
       var box;
       var transform;
-        
+       
+		function newPolygonAdded () {
+			//alert('Polygon completed');
+			//var coord = poly.features[0].geometry.getVertices();
+			//alert("coord");
+			poly.deactivate(); //stops the drawing
+			var poly_coord = polygonLayer.features[0].geometry.getVertices();
+			var anzahl = poly_coord.length;
+			//alert(typeof(anzahl));
+			var lon_punkt = new Array(anzahl);
+			var lat_punkt = new Array(anzahl);
+			for (var i = 0; i < anzahl; i++) {
+				lon_punkt[i] = polygonLayer.features[0].geometry.getVertices()[i].x;
+				lat_punkt[i] = polygonLayer.features[0].geometry.getVertices()[i].y;
+			}
+			
+			//if (myPoint) {alert('test');}
+			//else {alert('idiot');}
+			//var myLatLonPoint = myPoint.transform( map.getProjectionObject(),
+            //       new OpenLayers.Projection("EPSG:4326"));
+			//var Ergebnis = poly_coord.match(/POINT/g);
+			//if (Ergebnis) {
+			//	for (var i = 0; i < Ergebnis.length; ++i) {
+			//alert("Test 2: Fund " + i + " - " + Ergebnis[i]);} }
+			//alert(typeof(poly_coord));
+			//alert(typeof(myPoint));
+			alert(anzahl);
+			//alert(lat_punkt);
+			
+		}   	   
       
       function endDrag(bbox) {
       	var bounds = bbox.getBounds();
@@ -99,8 +132,8 @@ var js_lon2;
 
 function error() { // für Benutzer Koordinatenabfrage
     alert("Die Positionsbestimmung ist Fehlgeschlagen!")
-	var lon = 47;
-	var lat = 15;
+	var lon = 15;
+	var lat = 47;
 	var zoom = 7;
 	jumpTo(lon, lat, zoom);
 }   
@@ -118,7 +151,8 @@ function success(pos){ // für Benutzer Koordinatenabfrage
 function drawmap() { // OSM Karte erstellen
 
     OpenLayers.Lang.setCode('de');
-    
+     //               var wmsLayer = new OpenLayers.Layer.WMS( "OpenLayers WMS",
+     //               "http://vmap0.tiles.osgeo.org/wms/vmap0?", {layers: 'basic'});
     map = new OpenLayers.Map('map', {
     projection: new OpenLayers.Projection("EPSG:900913"),
     displayProjection: new OpenLayers.Projection("EPSG:4326"),
@@ -137,27 +171,50 @@ function drawmap() { // OSM Karte erstellen
     });
 
     layer_mapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
-    layer_markers = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), 
-    	                                          visibility: true, displayInLayerSwitcher: false });
+    //layer_markers = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), 
+    //	                                          visibility: true, displayInLayerSwitcher: false });
+	
+    //map.addLayers([layer_mapnik]);
+	//map.addLayers([layer_mapnik, layer_markers]);
+	//map.addControl(new OpenLayers.Control.MousePosition()); // Koordinaten rechts unten in der Karte
+	
+	                var pointLayer = new OpenLayers.Layer.Vector("Point Layer");
+                var lineLayer = new OpenLayers.Layer.Vector("Line Layer");
+                polygonLayer = new OpenLayers.Layer.Vector("Polygon Layer");
+                var boxLayer = new OpenLayers.Layer.Vector("Box layer");
 
-    map.addLayers([layer_mapnik, layer_markers]);
+                map.addLayers([layer_mapnik, pointLayer, lineLayer, polygonLayer, boxLayer]);
+               // map.addControl(new OpenLayers.Control.LayerSwitcher());
+                map.addControl(new OpenLayers.Control.MousePosition());
 
+              drawControls = {	
+					polygon: poly = new OpenLayers.Control.DrawFeature(polygonLayer, OpenLayers.Handler.Polygon, 
+                            {eventListeners:{"featureadded": newPolygonAdded}}),  
+				};
+				
+                for(var key in drawControls) {
+                    map.addControl(drawControls[key]);
+                }  
+
+				
+				
 	if (navigator.geolocation){
         navigator.geolocation.getCurrentPosition(success, error);	
 	}
 	else {
         alert("Geoortung wird nicht unterstützt!");
-		var lon = 47;
-		var lat = 15;
+		var lon = 15;
+		var lat = 47;
 		var zoom = 7;
 		jumpTo(lon, lat, zoom);
     }
 
+
 	//click = new OpenLayers.Control.Click();
     //map.addControl(click);
 	//click.activate();	
+}	         
 	
-}	
 	
 function bb() {
 	    vectors = new OpenLayers.Layer.Vector("Vector Layer", {
@@ -186,12 +243,19 @@ function bb() {
         map.addControl(box);
         
         box.activate();
-        
- //       map.setCenter(lonlat, zoom);
-        
-
-	
 }
+
+            function toggleControl(element) {
+                for(key in drawControls) {
+                    control = drawControls[key];
+                    if(element.value == key) {
+                        control.activate();						  
+                    } else {
+                        control.deactivate();
+                    }
+                }
+            }
+			
 
 // Koordinaten aus Karte holen und in Felder eintragen
 /*OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {             
@@ -308,6 +372,11 @@ function bb() {
     
     #bbox_drag_instruction { height:1.5em; }
     #bbox_adjust_instruction { height:1.5em; display:none;  }
+	
+	div.olControlMousePosition { 
+		background-color: #000000; 
+		font-weight: bold; 
+	} 
     </style>
 	
 </head>
@@ -373,6 +442,8 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<br/>(Mit Klick auf "OK" werden die Daten bereits runtergeladen)<br/>
 	<b>Achtung: Je nach Größe der Bounding Box/Bounding Polygon kann die Verarbeitung mehrere Minuten oder Stunden dauern.<br/><br/><br/><br/>
 </form>
+
+	<input type="button" name="type" value="polygon" id="polygonToggle" onclick="toggleControl(this);" />
 	<input type="button" value="drag a box" onclick="bb();"></div>
     <div id="bbox_drag_instruction">Drag a box:</div>
     <div id="bbox_adjust_instruction">Adjust the box ...or <input type="button" value="drag new box" onclick="dragNewBox();"></div>

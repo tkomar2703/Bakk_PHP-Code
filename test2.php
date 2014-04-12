@@ -1,115 +1,194 @@
-<html><head><title>Test</title>
-<script type="text/javascript">
-var Start = new Date();
-var Startzeit = Start.getTime();
 
-function Aufenthalt () {
-  var Ende = new Date();
-  var Endzeit = Ende.getTime();
-  var Aufenthalt = Math.floor((Endzeit - Startzeit) / 1000);
-  alert("Sie waren " + Aufenthalt + " Sekunden auf dieser Seite");
-}
-function test () {
-window.location.href = "test.php";
-};
-
-//window.addEventListener("beforeunload", function( event ) {
-//window.location.href = "test.php";
-//event.returnValue = "Test";
-//});
-
-//window.onbeforeunload = function() {
-//	window.location.href = "test.php";
-//    return 'You have unsaved changes!';	
-//}
-</script>
-</head>
-<body>
-
-<?php
-// Ignoriere Abbruch durch den Benutzer und erlaube dem Skript weiterzulaufen
-ignore_user_abort(true);
-set_time_limit(0);
-
-echo 'Teste Connectionhandling in PHP';
-
-// Lasse eine sinnfreie Schleife laufen, die uns irgendwann
-// hoffentlich von der Seite wegklicken oder den "Stop"-Button
-// betätigen lässt
-
-
-// Wird dieser Punkt erreicht, wurde das 'break'
-// von einem Punkt innerhalb der while-Schleife getriggert
-
-// Somit können wir hier ein Log schreiben oder andere Aufgaben
-// ausführen, die nicht davon abhängig sind, ob der Browser des
-// Benutzers noch eine stehende Verbindung zum Server hat
-
-while(1)
-{
-  // Schlug die Verbindung fehl?
-  if(connection_status() != CONNECTION_NORMAL)
-  {
-  $dir_daten = 'D:/Bakk/Daten';
-$zip_osm = "output_osm.zip";
-$zip_shape = "output_shape.zip";
-$pfad_osm = "$dir_daten/$zip_osm";
-$verz = "$dir_daten/output_shape/shape6/";
-
-$handle = opendir($verz);
-if($handle)
-{
-    while ( false !== ($file = readdir($handle)) )
-    {
-        if ( $file != "." and $file != ".." )
-        {
-            unlink($verz.$file);
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Geometry Intersections</title>
+    <link rel="stylesheet" href="../theme/default/style.css" type="text/css">
+    <!--[if lte IE 6]>
+        <link rel="stylesheet" href="../theme/default/ie6-style.css" type="text/css">
+    <![endif]-->
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 1em;
+            font: 0.9em Verdana, Arial, sans serif;
         }
-    }
-}
-rmdir($verz);
-    break;
-  }
-
-  // 10 Sekunden warten
-  sleep(10);
-}
-
-?>
-
-<a href="javascript:test()">Box</a><br>
-<?
-ignore_user_abort(true);
-set_time_limit(0);
-while(1)
-{
-  // Schlug die Verbindung fehl?
-  if(connection_status() == CONNECTION_NORMAL)
-  {
-  $dir_daten = 'D:/Bakk/Daten';
-$zip_osm = "output_osm.zip";
-$zip_shape = "output_shape.zip";
-$pfad_osm = "$dir_daten/$zip_osm";
-$verz = "$dir_daten/output_shape/shape5/";
-
-$handle = opendir($verz);
-if($handle)
-{
-    while ( false !== ($file = readdir($handle)) )
-    {
-        if ( $file != "." and $file != ".." )
-        {
-            unlink($verz.$file);
+        input, select, textarea {
+            font: 0.9em Verdana, Arial, sans-serif;
         }
-    }
-}
-rmdir($verz);
-    break;
-  }
+        h2 {
+            margin-top: 0.75em;
+            font-size: 1.6em;
+        }
+        #leftcol {
+            position: absolute;
+            top: 0;
+            left: 1em;
+            padding: 0;
+            width: 455px;
+        }
+        #map {
+            width: 450px;
+            height: 225px;
+            border: 1px solid #ccc;
+        }
+        #input {
+            width: 450px;
+        }
+        #text {
+            font-size: 0.85em;
+            margin: 1em 0 1em 0;
+            width: 100%;
+            height: 10em;
+        }
+        #info {
+            position: relative;
+            padding: 2em 0;
+            margin-left: 470px;
+        }
+        #features {
+            font-size: 0.8em;
+            width: 100%;
+            height: 200px;
+        }
+        #intersections {
+            font-size: 0.8em;
+            width: 100%;
+            height: 200px;
+        }
+        p {
+            margin: 0;
+            padding: 0.75em 0 0.75em 0;
+        }
+    </style>
+    <script src="../lib/Firebug/firebug.js"></script>
+    <script type="text/javascript" src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <script type="text/javascript">
+        var map, vectors, geojson;
+        function init(){
+            map = new OpenLayers.Map('map');
+            vectors = new OpenLayers.Layer.Vector(
+                "Vector Layer",
+                {isBaseLayer: true}
+            );
 
-  // 10 Sekunden warten
-  //sleep(10);
-}
-?>
-</body>
+            map.addLayers([vectors]);
+            map.addControl(new OpenLayers.Control.MousePosition());
+            
+            var panel = new OpenLayers.Control.EditingToolbar(vectors);
+            map.addControl(panel);
+
+            geojson = new OpenLayers.Format.GeoJSON();
+            
+            map.setCenter(new OpenLayers.LonLat(0, 0), 1);
+        }
+        
+        function serialize() {
+            var str = geojson.write(vectors.features, true);
+            document.getElementById('features').value = str;
+        }
+
+        function deserialize() {
+            var element = document.getElementById('text');
+            var features = geojson.read(element.value);
+            var bounds;
+            if(features) {
+                if(features.constructor != Array) {
+                    features = [features];
+                }
+                for(var i=0; i<features.length; ++i) {
+                    if (!bounds) {
+                        bounds = features[i].geometry.getBounds();
+                    } else {
+                        bounds.extend(features[i].geometry.getBounds());
+                    }
+                    
+                }
+                vectors.addFeatures(features);
+                map.zoomToExtent(bounds);
+                var plural = (features.length > 1) ? 's' : '';
+                element.value = features.length + ' feature' + plural + ' added'
+            } else {
+                element.value = 'Bad input';
+            }
+        }
+        
+        function intersect() {
+            var features = vectors.features;
+            var feat1, feat2, intersects12, intersects21;
+            var parts = [];
+            // reset attributes
+            for(var i=0; i<features.length; ++i) {
+                features[i].attributes.intersectsWith = [];
+            }
+            for(var i=0; i<features.length-1; ++i) {
+                feat1 = features[i];
+                for(var j=i+1; j<features.length; ++j) {
+                    feat2 = features[j];
+                    intersects12 = feat1.geometry.intersects(feat2.geometry);
+                    if(intersects12) {
+                        feat1.attributes.intersectsWith.push("f" + j);
+                        parts.push("f" + i + " intersects f" + j + "\n");
+                    }
+                    intersects21 = feat2.geometry.intersects(feat1.geometry);
+                    if(intersects21) {
+                        feat2.attributes.intersectsWith.push("f" + i);
+                        parts.push("f" + j + " intersects f" +  i + "\n");
+                    }
+                    if(intersects12 != intersects21) {
+                        parts.push("trouble with " + i + " and " + j + "\n");
+                    }
+                }
+            }
+            if(parts.length > 0) {
+                document.getElementById("intersections").value = parts.join("");
+            } else {
+                document.getElementById("intersections").value = "no intersections";
+            }
+        }
+
+        // preload images
+        (function() {
+            var roots = ["draw_point", "draw_line", "draw_polygon", "pan"];
+            var onImages = [];
+            var offImages = [];
+            for(var i=0; i<roots.length; ++i) {
+                onImages[i] = new Image();
+                onImages[i].src = "../theme/default/img/" + roots[i] + "_on.png";
+                offImages[i] = new Image();
+                offImages[i].src = "../theme/default/img/" + roots[i] + "_on.png";
+            }
+        })();
+
+    </script>
+  </head>
+  <body onload="init()">
+    <div id="leftcol">
+        <h1 id="title">OpenLayers Geometry Intersection Example</h1>
+        <div id="tags">
+            intersection, geometry
+        </div>
+        <p id="shortdesc">
+            Use of geometry.intersects method for testing geometry intersections.
+        </p>
+        <div id="map" class="smallmap"></div>
+        <div id="input">
+            <textarea id="text"></textarea> 
+            <input type="button" value="add feature" onclick="deserialize();" />
+            <span id="selected"></span>
+        </div>
+    </div>
+    <div id="info">
+        <p>Features</p>
+        <input type="button" value="refresh" onclick="serialize();"><br>
+        <textarea id="features"></textarea>
+        <p>Intersections</p>
+        <input type="button" value="intersect all" onclick="intersect();"><br>
+        <textarea id="intersections"></textarea>
+    </div>
+  </body>
 </html>
