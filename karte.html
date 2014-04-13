@@ -30,11 +30,11 @@ var js_lon2;
 var polygonLayer;
 var drawControls;
 var control;
-      var vectors;
+      var boxLayer;
       var box;
       var transform;
        
-		function newPolygonAdded () {
+		function newPolygonAdded () { // Polygon über Doppelklick fertig gezeichnet
 			//alert('Polygon completed');
 			//var coord = poly.features[0].geometry.getVertices();
 			//alert("coord");
@@ -49,6 +49,11 @@ var control;
 				lat_punkt[i] = polygonLayer.features[0].geometry.getVertices()[i].y;
 			}
 			
+			document.getElementById("bbox_construct").style.display = 'none';
+			document.getElementById("bpoly_construct").style.display = 'none';
+			document.getElementById("bbox_delete").style.display = 'none';  
+			document.getElementById("bpoly_delete").style.display = 'block'; 
+			
 			//if (myPoint) {alert('test');}
 			//else {alert('idiot');}
 			//var myLatLonPoint = myPoint.transform( map.getProjectionObject(),
@@ -59,28 +64,37 @@ var control;
 			//alert("Test 2: Fund " + i + " - " + Ergebnis[i]);} }
 			//alert(typeof(poly_coord));
 			//alert(typeof(myPoint));
-			alert(anzahl);
+			//alert(anzahl);
 			//alert(lat_punkt);
 			
 		}   	   
       
-      function endDrag(bbox) {
+      function endDrag(bbox) { // Bounding Box fertig aufgezogen
       	var bounds = bbox.getBounds();
         setBounds(bounds);
         drawBox(bounds);
         box.deactivate();
         
-        document.getElementById("bbox_drag_instruction").style.display = 'none';
-        document.getElementById("bbox_adjust_instruction").style.display = 'block';        
+        document.getElementById("bbox_construct").style.display = 'none';
+		document.getElementById("bpoly_construct").style.display = 'none';
+        document.getElementById("bbox_delete").style.display = 'block';  
+		document.getElementById("bpoly_delete").style.display = 'none'; 		
       }
       
-      function dragNewBox() {
-        box.activate();
-        transform.deactivate(); //The remove the box with handles
-        vectors.destroyFeatures();
-        
-        document.getElementById("bbox_drag_instruction").style.display = 'block';
-        document.getElementById("bbox_adjust_instruction").style.display = 'none';
+      function box_delete() { // Bounding Box löschen
+        //box.activate();
+        transform.deactivate();
+        boxLayer.destroyFeatures();
+        box.deactivate();
+        document.getElementById("bbox_construct").style.display = 'block';
+		document.getElementById("bpoly_construct").style.display = 'block';
+        document.getElementById("bbox_delete").style.display = 'none';
+		document.getElementById("bpoly_delete").style.display = 'none';
+		
+		document.getElementById("lat1").value = '';
+		document.getElementById("lon1").value = '';			
+		document.getElementById("lat2").value = '';
+		document.getElementById("lon2").value = '';	
         
         setBounds(null); 
       }
@@ -91,8 +105,7 @@ var control;
       
       function drawBox(bounds) {
         var feature = new OpenLayers.Feature.Vector(bounds.toGeometry());
- 
-        vectors.addFeatures(feature);
+        boxLayer.addFeatures(feature);
         transform.setFeature(feature);
       }
       
@@ -119,14 +132,10 @@ var control;
                           "maxlat=" + maxlat;  
         
 			document.getElementById("lat1").value = minlat;
-			document.getElementById("lon1").value = minlon;
+			document.getElementById("lon2").value = minlon;
 			
 			document.getElementById("lat2").value = maxlat;
-			document.getElementById("lon2").value = maxlon;
-			
-		
-		
-		
+			document.getElementById("lon1").value = maxlon;		
 		}
       }
 
@@ -151,8 +160,6 @@ function success(pos){ // für Benutzer Koordinatenabfrage
 function drawmap() { // OSM Karte erstellen
 
     OpenLayers.Lang.setCode('de');
-     //               var wmsLayer = new OpenLayers.Layer.WMS( "OpenLayers WMS",
-     //               "http://vmap0.tiles.osgeo.org/wms/vmap0?", {layers: 'basic'});
     map = new OpenLayers.Map('map', {
     projection: new OpenLayers.Projection("EPSG:900913"),
     displayProjection: new OpenLayers.Projection("EPSG:4326"),
@@ -171,24 +178,16 @@ function drawmap() { // OSM Karte erstellen
     });
 
     layer_mapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
-    //layer_markers = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), 
-    //	                                          visibility: true, displayInLayerSwitcher: false });
+    layer_markers = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), 
+    	                                          visibility: true, displayInLayerSwitcher: false });
 	
-    //map.addLayers([layer_mapnik]);
-	//map.addLayers([layer_mapnik, layer_markers]);
-	//map.addControl(new OpenLayers.Control.MousePosition()); // Koordinaten rechts unten in der Karte
-	
-	                var pointLayer = new OpenLayers.Layer.Vector("Point Layer");
-                var lineLayer = new OpenLayers.Layer.Vector("Line Layer");
                 polygonLayer = new OpenLayers.Layer.Vector("Polygon Layer");
-                var boxLayer = new OpenLayers.Layer.Vector("Box layer");
-
-                map.addLayers([layer_mapnik, pointLayer, lineLayer, polygonLayer, boxLayer]);
-               // map.addControl(new OpenLayers.Control.LayerSwitcher());
-                map.addControl(new OpenLayers.Control.MousePosition());
+				boxLayer = new OpenLayers.Layer.Vector("Vector Layer");
+                map.addLayers([layer_mapnik, layer_markers, polygonLayer, boxLayer]);
+                map.addControl(new OpenLayers.Control.MousePosition()); // Koordinaten rechts unten in der Karte
 
               drawControls = {	
-					polygon: poly = new OpenLayers.Control.DrawFeature(polygonLayer, OpenLayers.Handler.Polygon, 
+					'Bounding Polygon': poly = new OpenLayers.Control.DrawFeature(polygonLayer, OpenLayers.Handler.Polygon, 
                             {eventListeners:{"featureadded": newPolygonAdded}}),  
 				};
 				
@@ -216,13 +215,8 @@ function drawmap() { // OSM Karte erstellen
 }	         
 	
 	
-function bb() {
-	    vectors = new OpenLayers.Layer.Vector("Vector Layer", {
-        displayInLayerSwitcher: false
-        });
-        map.addLayer(vectors);
-     
-        box = new OpenLayers.Control.DrawFeature(vectors, OpenLayers.Handler.RegularPolygon, {
+function bb() {  
+        box = new OpenLayers.Control.DrawFeature(boxLayer, OpenLayers.Handler.RegularPolygon, {
           handlerOptions: {
             sides: 4,
             snapAngle: 90,
@@ -233,7 +227,7 @@ function bb() {
         box.handler.callbacks.done = endDrag;
         map.addControl(box);
      
-        transform = new OpenLayers.Control.TransformFeature(vectors, {
+        transform = new OpenLayers.Control.TransformFeature(boxLayer, {
           rotate: false,
           irregular: true
         });
@@ -255,7 +249,16 @@ function bb() {
                     }
                 }
             }
-			
+	
+	function polygon_delete() { // Bounding Polygon löschen
+        //poly.activate();
+        polygonLayer.destroyFeatures();
+		poly.deactivate();
+		document.getElementById("bbox_construct").style.display = 'block';
+		document.getElementById("bpoly_construct").style.display = 'block';
+        document.getElementById("bbox_delete").style.display = 'none';  
+		document.getElementById("bpoly_delete").style.display = 'none'; 
+    }	
 
 // Koordinaten aus Karte holen und in Felder eintragen
 /*OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {             
@@ -370,9 +373,8 @@ function bb() {
     <style>
     div.olControlAttribution { bottom:3px; }
     
-    #bbox_drag_instruction { height:1.5em; }
-    #bbox_adjust_instruction { height:1.5em; display:none;  }
-	
+    #bbox_delete { display:none; }
+	#bpoly_delete { display:none; }
 	div.olControlMousePosition { 
 		background-color: #000000; 
 		font-weight: bold; 
@@ -394,22 +396,28 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 
 <div id='map'></div>
 
-<h3>Bounding Box durch Koordinateneingabe oder durch Klick in die Karte:</h3>
-<h4>bei Klick in die Karte: Radio Button entsprechend auswählen</h4>
+<h4>Bounding Box / Bounding Polygon auswählen und in die Karte klicken:</h4>
+	<div id="bbox_construct"><td><input type="button" value="Bounding Box" onclick="bb();" style="width: 150px"> (durch Aufziehen in Karte)</div>
+	<div id="bpoly_construct"><input type="button" name="type" value="Bounding Polygon" id="polygonToggle" onclick="toggleControl(this);" style="width: 150px"/> (Klick in Karte setzt Eckpunkte, Doppelklick schließt das Polygon)</div>	
+	<div id="bpoly_delete"><input type="button" value="Polygon löschen" onclick="polygon_delete();" style="width: 150px"> (löscht das Polygon und gibt die Option frei, ein Neues zu zeichnen)</div>
+	<div id="bbox_delete"><input type="button" value="Box löschen" onclick="box_delete();" style="width: 150px"> (entweder Bounding Box in Karte anpassen oder löschen und ein Neues zeichnen)</div>
+	
+<br/><h4>oder durch Koordinateneingabe:</h4>
+
 <form name = "bounding" action = "ausfuehrung.php" method = "GET">
 	<b>1. Punkt</b> <br/>
-	<input type="radio" name="punkt_ausw" value="punkt1" checked="checked" onclick="Check()"></input>
+	<!-- <input type="radio" name="punkt_ausw" value="punkt1" checked="checked" onclick="Check()"></input> -->
 	Geografische Länge:
 	<input type="text" id="lon1" name="lon1" size="10" maxlength="10">
 	Geografische Breite:
 	<input type="text" id="lat1" name="lat1" size="10" maxlength="10"><br/>
 	<b>2. Punkt</b> <br/>
-	<input type="radio" name="punkt_ausw" value="punkt2" onclick="Check()"></input>
+	<!-- <input type="radio" name="punkt_ausw" value="punkt2" onclick="Check()"></input> -->
 	Geografische Länge:
 	<input type="text" id="lon2" name="lon2" size="10" maxlength="10">
 	Geografische Breite:
 	<input type="text" id="lat2" name="lat2" size="10" maxlength="10"><br/>
-	
+	(hierbei findet keine Visualisierung in der Karte statt)<br/>
 	<br/><b>Welche Elemente sollen beibehalten werden?</b> (Wenn nichts ausgewählt -> alles behalten)<br/>
 	Wald:
 	<input type="checkbox" name="tag[]" value="landuse=forest" ></input><br/>
@@ -443,10 +451,9 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<b>Achtung: Je nach Größe der Bounding Box/Bounding Polygon kann die Verarbeitung mehrere Minuten oder Stunden dauern.<br/><br/><br/><br/>
 </form>
 
-	<input type="button" name="type" value="polygon" id="polygonToggle" onclick="toggleControl(this);" />
-	<input type="button" value="drag a box" onclick="bb();"></div>
+
     <div id="bbox_drag_instruction">Drag a box:</div>
-    <div id="bbox_adjust_instruction">Adjust the box ...or <input type="button" value="drag new box" onclick="dragNewBox();"></div>
+    
     <div id="mapdiv"></div>
     <p id="bbox_result"> </p>
     <div id="explanation">Interface to let the user pick a bounding box, and adjust it</div>
