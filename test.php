@@ -166,11 +166,11 @@
         //        }
         //    }
 			
-	//		      function dragNewBox() {
-    //    poly.activate();
+			      function dragNewBox() {
+        poly.activate();
  //       transform.deactivate(); //The remove the box with handles
-     //   polygonLayer.destroyFeatures();
-     // }
+        polygonLayer.destroyFeatures();
+      }
 			
         </script>
     </head>
