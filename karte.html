@@ -44,16 +44,37 @@ var control;
 			//alert(typeof(anzahl));
 			var lon_punkt = new Array(anzahl);
 			var lat_punkt = new Array(anzahl);
+			var LonLat_WGS;
+			var punkt_schreiben = "";
 			for (var i = 0; i < anzahl; i++) {
-				lon_punkt[i] = polygonLayer.features[0].geometry.getVertices()[i].x;
-				lat_punkt[i] = polygonLayer.features[0].geometry.getVertices()[i].y;
+				LonLat_WGS = new OpenLayers.LonLat
+					(polygonLayer.features[0].geometry.getVertices()[i].x,polygonLayer.features[0].geometry.getVertices()[i].y)
+					.transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"));
+				lon_punkt[i] = LonLat_WGS.lon;
+				lat_punkt[i] = LonLat_WGS.lat;
+				punkt_schreiben = punkt_schreiben + " " + LonLat_WGS.lon + " " + LonLat_WGS.lat + "\n";
+				
 			}
+			//alert(punkt_schreiben);
+			document.getElementById("poly_koord").value = punkt_schreiben;
+			var lon_punkt_sortiert = lon_punkt.sort();
+			var lat_punkt_sortiert = lat_punkt.sort();
 			
+			document.getElementById("lat1").value = lat_punkt_sortiert[0].toFixed(6);
+			document.getElementById("lon1").value = lon_punkt_sortiert[0].toFixed(6);
+			
+			document.getElementById("lat2").value = lat_punkt_sortiert[anzahl-1].toFixed(6);
+			document.getElementById("lon2").value = lon_punkt_sortiert[anzahl-1].toFixed(6);	
+			
+			//var	max = lon_punkt.max();
+			//alert(min[0]);
 			document.getElementById("bbox_construct").style.display = 'none';
 			document.getElementById("bpoly_construct").style.display = 'none';
 			document.getElementById("bbox_delete").style.display = 'none';  
 			document.getElementById("bpoly_delete").style.display = 'block'; 
 			
+			document.getElementById("ausw_bpoly").checked = true;
+			document.getElementById("koord_poly").style.display = 'block';
 			//if (myPoint) {alert('test');}
 			//else {alert('idiot');}
 			//var myLatLonPoint = myPoint.transform( map.getProjectionObject(),
@@ -74,11 +95,12 @@ var control;
         setBounds(bounds);
         drawBox(bounds);
         box.deactivate();
-        
         document.getElementById("bbox_construct").style.display = 'none';
 		document.getElementById("bpoly_construct").style.display = 'none';
         document.getElementById("bbox_delete").style.display = 'block';  
-		document.getElementById("bpoly_delete").style.display = 'none'; 		
+		document.getElementById("bpoly_delete").style.display = 'none';
+		document.getElementById("ausw_bbox").checked = true;	
+				
       }
       
       function box_delete() { // Bounding Box löschen
@@ -95,6 +117,8 @@ var control;
 		document.getElementById("lon1").value = '';			
 		document.getElementById("lat2").value = '';
 		document.getElementById("lon2").value = '';	
+		
+		document.getElementById("ausw_bbox").checked = false;
         
         setBounds(null); 
       }
@@ -109,10 +133,10 @@ var control;
         transform.setFeature(feature);
       }
       
-      function toPrecision(zoom, value) {
-        var decimals = Math.pow(10, Math.floor(zoom/3));
-        return Math.round(value * decimals) / decimals;
-      }
+      //function toPrecision(zoom, value) {
+      //  var decimals = Math.pow(10, Math.floor(zoom/3));
+      //  return Math.round(value * decimals) / decimals;
+      //}
       
       function setBounds(bounds) {
       	if (bounds == null) {
@@ -120,22 +144,22 @@ var control;
       	  
       	} else {
           b = bounds.clone().transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"))
-          minlon = toPrecision(map.getZoom(), b.left);
-          minlat = toPrecision(map.getZoom(), b.bottom);    
-          maxlon = toPrecision(map.getZoom(), b.right);
-          maxlat = toPrecision(map.getZoom(), b.top);  
+        //  minlon = toPrecision(map.getZoom(), b.left);
+        //  minlat = toPrecision(map.getZoom(), b.bottom);    
+        //  maxlon = toPrecision(map.getZoom(), b.right);
+        //  maxlat = toPrecision(map.getZoom(), b.top);  
                  
-          document.getElementById("bbox_result").innerHTML =
-                          "minlon=" + minlon + ", " +
-                          "minlat=" + minlat + ", " +
-                          "maxlon=" + maxlon + ", " +
-                          "maxlat=" + maxlat;  
+        //  document.getElementById("bbox_result").innerHTML =
+        //                  "minlon=" + minlon + ", " +
+        //                  "minlat=" + minlat + ", " +
+        //                  "maxlon=" + maxlon + ", " +
+        //                  "maxlat=" + maxlat;  
         
-			document.getElementById("lat1").value = minlat;
-			document.getElementById("lon2").value = minlon;
+			document.getElementById("lat1").value = b.bottom.toFixed(6);
+			document.getElementById("lon2").value = b.left.toFixed(6);
 			
-			document.getElementById("lat2").value = maxlat;
-			document.getElementById("lon1").value = maxlon;		
+			document.getElementById("lat2").value = b.top.toFixed(6);
+			document.getElementById("lon1").value = b.right.toFixed(6);		
 		}
       }
 
@@ -258,6 +282,17 @@ function bb() {
 		document.getElementById("bpoly_construct").style.display = 'block';
         document.getElementById("bbox_delete").style.display = 'none';  
 		document.getElementById("bpoly_delete").style.display = 'none'; 
+		
+		document.getElementById("ausw_bpoly").checked = false;
+		
+		document.getElementById("lat1").value = '';
+		document.getElementById("lon1").value = '';			
+		document.getElementById("lat2").value = '';
+		document.getElementById("lon2").value = '';	
+		
+		document.getElementById("poly_koord").value = '';
+		
+		document.getElementById("koord_poly").style.display = 'none';
     }	
 
 // Koordinaten aus Karte holen und in Felder eintragen
@@ -375,6 +410,7 @@ function bb() {
     
     #bbox_delete { display:none; }
 	#bpoly_delete { display:none; }
+	#koord_poly { display:none; }
 	div.olControlMousePosition { 
 		background-color: #000000; 
 		font-weight: bold; 
@@ -416,8 +452,9 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	Geografische Länge:
 	<input type="text" id="lon2" name="lon2" size="10" maxlength="10">
 	Geografische Breite:
-	<input type="text" id="lat2" name="lat2" size="10" maxlength="10"><br/>
-	(hierbei findet keine Visualisierung in der Karte statt)<br/>
+	<input type="text" id="lat2" name="lat2" size="10" maxlength="10"><br/> 
+	<div id="koord_poly"> <font color="#FFAA00">Es werden die Koordinaten der <b>Minimum Bounding Box</b> angezeigt.</font></div>
+	(bei Koordinateneingabe findet keine Visualisierung in der Karte statt)<br/>
 	<br/><b>Welche Elemente sollen beibehalten werden?</b> (Wenn nichts ausgewählt -> alles behalten)<br/>
 	Wald:
 	<input type="checkbox" name="tag[]" value="landuse=forest" ></input><br/>
@@ -438,7 +475,13 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<input type="checkbox" name="typ[]" value="shp" checked="checked"></input><br/>
 	OpenStreetMap-Datei (.osm):
 	<input type="checkbox" name="typ[]" value="osm" ></input><br/>
-
+	
+	<!-- wurde Bounding Box oder Polygon gezeichnet -->
+	<input type="checkbox" id="ausw_bbox" name="ausw_bounding" value="loesch_ja" style="display:none;"></input> 
+	<input type="checkbox" id="ausw_bpoly" name="ausw_bounding" value="loesch_nein" style="display:none;"></input>
+	<!-- Koordinaten des Bounding Polygons -->
+	<textarea name="poly_koord" id="poly_koord" rows="8" cols="80" tabindex="3" style="display:none;"></textarea>
+	
 	<br/><b>Exportierte Daten löschen?</b> (Auswahl in fertiger Arbeit nicht mehr vorhanden)<br/>
 	Ja:
 	<input type="radio" name="loeschen" value="loesch_ja" checked="checked"></input>
@@ -449,14 +492,8 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<input type="reset" value="Abbrechen"\>
 	<br/>(Mit Klick auf "OK" werden die Daten bereits runtergeladen)<br/>
 	<b>Achtung: Je nach Größe der Bounding Box/Bounding Polygon kann die Verarbeitung mehrere Minuten oder Stunden dauern.<br/><br/><br/><br/>
+
 </form>
-
-
-    <div id="bbox_drag_instruction">Drag a box:</div>
-    
-    <div id="mapdiv"></div>
-    <p id="bbox_result"> </p>
-    <div id="explanation">Interface to let the user pick a bounding box, and adjust it</div>
 
 </body>
 </html>
