@@ -45,6 +45,14 @@ $lat1 = $_GET["lat1"];
 $lon2 = $_GET["lon2"];
 $lat2 = $_GET["lat2"];
 
+if (empty($_GET["poly_koord"])) { echo "idiot";}
+else {
+$poly_koord = $_GET["poly_koord"];
+echo $poly_koord;
+$datei_handle_poly=fopen($dir_convert_filter."/poly_koord.poly","w+"); // .xml für Overpass-API
+fwrite($datei_handle_poly,"polygon\r\n1\r\n".$poly_koord."END\r\nEND");
+fclose($datei_handle_poly);
+}
 // Überprüfen ob alle notwendigen Variablen übergeben wurden
 if (empty($_GET["lon1"]) || empty($_GET["lon2"]) || empty($_GET["lat1"]) || empty($_GET["lat2"])) {		
 	echo "Keine oder nicht alle Eckpunkte f&uuml;r die Bounding Box gew&#xE4;hlt";
