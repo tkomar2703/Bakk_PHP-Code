@@ -104,6 +104,8 @@ else {
 	exit;
 }
 
+$server = $_GET['server'];
+
 mkdir($dir_daten); // Ordner für alle Daten
 mkdir($dir_shape); // Ordner erstellen, wo die Shapes gespeichert werden
 
@@ -135,7 +137,7 @@ set_time_limit(0); // ansonsten nach 30 Sekunden abbruch
 $rueck = " 2>&1"; // Rückgabewert der Tools umleiten
 
 $befehl_overpass = sprintf(
-	'%s www.overpass-api.de/api/interpreter --ignore-length --post-file=%s -O %s',
+	'%s '.$server.'interpreter --ignore-length --post-file=%s -O %s',
 	escapeshellarg($dir_wget . '/wget'),
 	escapeshellarg($dir_daten . '/overpass_api.xml'),
 	escapeshellarg($dir_daten . '/output_overpass.osm.pbf')

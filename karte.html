@@ -474,7 +474,16 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	Shapefile (.shp):
 	<input type="checkbox" name="typ[]" value="shp" checked="checked"></input><br/>
 	OpenStreetMap-Datei (.osm):
-	<input type="checkbox" name="typ[]" value="osm" ></input><br/>
+	<input type="checkbox" name="typ[]" value="osm" ></input><br/><br/>
+	
+	<b>Serverauswahl:</b>
+	 <!-- Serverauswahl -->
+    <select name="server" size="1">
+      <option value="http://www.overpass-api.de/api/">Deutschland</option>
+      <option value="http://overpass.osm.rambler.ru/cgi/">Russland</option>
+      <option value="http://api.openstreetmap.fr/oapi/">Frankreich</option>
+    </select>
+	<br/>
 	
 	<!-- wurde Bounding Box oder Polygon gezeichnet -->
 	<input type="checkbox" id="ausw_bbox" name="ausw_bounding" value="loesch_ja" style="display:none;"></input> 
