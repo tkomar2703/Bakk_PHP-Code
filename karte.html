@@ -456,12 +456,18 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<div id="koord_poly"> <font color="#FFAA00">Es werden die Koordinaten der <b>Minimum Bounding Box</b> angezeigt.</font></div>
 	(bei Koordinateneingabe findet keine Visualisierung in der Karte statt)<br/>
 	<br/><b>Welche Elemente sollen beibehalten werden?</b> (Wenn nichts ausgewählt -> alles behalten)<br/>
-	Wald:
+	<select name="tag" size="1">
+      <option value="landuse=forest">Wald</option>
+      <option value="highway=">Straßen</option>
+      <option value="building=">Gebäude</option>
+    </select>
+	<br/>
+	<!--Wald:
 	<input type="checkbox" name="tag[]" value="landuse=forest" ></input><br/>
 	Straße:
 	<input type="checkbox" name="tag[]" value="highway=" ></input><br/>
 	Häuser:
-	<input type="checkbox" name="tag[]" value="building=" ></input><br/>
+	<input type="checkbox" name="tag[]" value="building=" ></input><br/> -->
 	OSM-Filter: keep="Folgender Input" (mit obigen Optionen kombinierbar)<br/>
 	<input type="text" id="keep_eig" name="keep_eig" size="50"><br/>
 	<br/>OSM-Filter: Kompletten Befehl selbst schreiben (Achtung: Obige Optionen werden dabei ignoriert)<br/>
@@ -475,6 +481,15 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<input type="checkbox" name="typ[]" value="shp" checked="checked"></input><br/>
 	OpenStreetMap-Datei (.osm):
 	<input type="checkbox" name="typ[]" value="osm" ></input><br/><br/>
+	
+	<b>Shapefiles als: </b>
+	 <!-- Shapefiles -->
+    <select name="shapes" size="1">
+      <option value="multipolygons">Polygone</option>
+      <option value="lines">Linien</option>
+      <option value="points">Punkte</option>
+    </select>
+	<br/>
 	
 	<b>Serverauswahl:</b>
 	 <!-- Serverauswahl -->

@@ -64,12 +64,12 @@ if (empty($_GET["lon1"]) || empty($_GET["lon2"]) || empty($_GET["lat1"]) || empt
 	<?php
 	exit;		
 }
-	
-if (isset($_GET['tag'])) {// welche Tags wurden ausgewählt
+$tag_ausw = $_GET['tag']; // welcher Tag wurde ausgewählt	
+/*if (isset($_GET['tag'])) {// welche Tags wurden ausgewählt
 	$tag = $_GET["tag"];
 	$tag_ausw = implode(' ',$tag);
 //	$anz = count($tag);
-}
+} */
 if (!empty($_GET['keep_eig'])) {// Benutzerdefinierter Tag hinzugefügt
 	$keep_eig = $_GET['keep_eig'];
 	if (isset($_GET['tag'])) {
@@ -105,6 +105,7 @@ else {
 }
 
 $server = $_GET['server'];
+$shapes = $_GET['shapes'];
 
 mkdir($dir_daten); // Ordner für alle Daten
 mkdir($dir_shape); // Ordner erstellen, wo die Shapes gespeichert werden
@@ -181,7 +182,7 @@ if (isset($befehl_eig)) {
 	);
 }
 // Tags ausgewählt?	
-elseif (isset($tag)) { // ja
+elseif (isset($tag_ausw)) { // ja
 	$befehl_filter = sprintf(
 	"%s %s --keep=\"$tag_ausw\" -o=%s",
 	escapeshellarg($dir_convert_filter . '/osmfilter'),
@@ -210,7 +211,7 @@ $befehl1_ogr2ogr = sprintf(
 );
 			
 $befehl2_ogr2ogr = sprintf(
-	"SET par=ogr2ogr -f \"ESRI Shapefile\" %s %s multipolygons lines points --config OSM_USE_CUSTOM_INDEXING NO",
+	"SET par=ogr2ogr -f \"ESRI Shapefile\" %s %s ".$shapes." --config OSM_USE_CUSTOM_INDEXING NO",
 	escapeshellarg($dir_shape . "/shape"),
 	escapeshellarg($dir_daten . '/output_filter.osm')
 );
