@@ -26,143 +26,108 @@ var layer_tah;
 var layer_markers;
 var lonlat;
 var js_lon2;
-
 var polygonLayer;
 var drawControls;
 var control;
-      var boxLayer;
-      var box;
-      var transform;
+var boxLayer;
+var box;
+var transform;
        
-		function newPolygonAdded () { // Polygon über Doppelklick fertig gezeichnet
-			//alert('Polygon completed');
-			//var coord = poly.features[0].geometry.getVertices();
-			//alert("coord");
-			poly.deactivate(); //stops the drawing
-			var poly_coord = polygonLayer.features[0].geometry.getVertices();
-			var anzahl = poly_coord.length;
-			//alert(typeof(anzahl));
-			var lon_punkt = new Array(anzahl);
-			var lat_punkt = new Array(anzahl);
-			var LonLat_WGS;
-			var punkt_schreiben = "";
-			for (var i = 0; i < anzahl; i++) {
-				LonLat_WGS = new OpenLayers.LonLat
-					(polygonLayer.features[0].geometry.getVertices()[i].x,polygonLayer.features[0].geometry.getVertices()[i].y)
-					.transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"));
-				lon_punkt[i] = LonLat_WGS.lon;
-				lat_punkt[i] = LonLat_WGS.lat;
-				punkt_schreiben = punkt_schreiben + " " + LonLat_WGS.lon + " " + LonLat_WGS.lat + "\n";
-				
-			}
-			//alert(punkt_schreiben);
-			document.getElementById("poly_koord").value = punkt_schreiben;
-			var lon_punkt_sortiert = lon_punkt.sort();
-			var lat_punkt_sortiert = lat_punkt.sort();
-			
-			document.getElementById("lat1").value = lat_punkt_sortiert[0].toFixed(6);
-			document.getElementById("lon1").value = lon_punkt_sortiert[0].toFixed(6);
-			
-			document.getElementById("lat2").value = lat_punkt_sortiert[anzahl-1].toFixed(6);
-			document.getElementById("lon2").value = lon_punkt_sortiert[anzahl-1].toFixed(6);	
-			
-			//var	max = lon_punkt.max();
-			//alert(min[0]);
-			document.getElementById("bbox_construct").style.display = 'none';
-			document.getElementById("bpoly_construct").style.display = 'none';
-			document.getElementById("bbox_delete").style.display = 'none';  
-			document.getElementById("bpoly_delete").style.display = 'block'; 
-			
-			document.getElementById("ausw_bpoly").checked = true;
-			document.getElementById("koord_poly").style.display = 'block';
-			//if (myPoint) {alert('test');}
-			//else {alert('idiot');}
-			//var myLatLonPoint = myPoint.transform( map.getProjectionObject(),
-            //       new OpenLayers.Projection("EPSG:4326"));
-			//var Ergebnis = poly_coord.match(/POINT/g);
-			//if (Ergebnis) {
-			//	for (var i = 0; i < Ergebnis.length; ++i) {
-			//alert("Test 2: Fund " + i + " - " + Ergebnis[i]);} }
-			//alert(typeof(poly_coord));
-			//alert(typeof(myPoint));
-			//alert(anzahl);
-			//alert(lat_punkt);
-			
-		}   	   
-      
-      function endDrag(bbox) { // Bounding Box fertig aufgezogen
-      	var bounds = bbox.getBounds();
-        setBounds(bounds);
-        drawBox(bounds);
-        box.deactivate();
-        document.getElementById("bbox_construct").style.display = 'none';
-		document.getElementById("bpoly_construct").style.display = 'none';
-        document.getElementById("bbox_delete").style.display = 'block';  
-		document.getElementById("bpoly_delete").style.display = 'none';
-		document.getElementById("ausw_bbox").checked = true;	
-				
-      }
-      
-      function box_delete() { // Bounding Box löschen
-        //box.activate();
-        transform.deactivate();
-        boxLayer.destroyFeatures();
-        box.deactivate();
-        document.getElementById("bbox_construct").style.display = 'block';
-		document.getElementById("bpoly_construct").style.display = 'block';
-        document.getElementById("bbox_delete").style.display = 'none';
-		document.getElementById("bpoly_delete").style.display = 'none';
-		
-		document.getElementById("lat1").value = '';
-		document.getElementById("lon1").value = '';			
-		document.getElementById("lat2").value = '';
-		document.getElementById("lon2").value = '';	
-		
-		document.getElementById("ausw_bbox").checked = false;
-        
-        setBounds(null); 
-      }
-      
-      function boxResize(event) {
-        setBounds(event.feature.geometry.bounds);
-      }
-      
-      function drawBox(bounds) {
-        var feature = new OpenLayers.Feature.Vector(bounds.toGeometry());
-        boxLayer.addFeatures(feature);
-        transform.setFeature(feature);
-      }
-      
-      //function toPrecision(zoom, value) {
-      //  var decimals = Math.pow(10, Math.floor(zoom/3));
-      //  return Math.round(value * decimals) / decimals;
-      //}
-      
-      function setBounds(bounds) {
-      	if (bounds == null) {
-      	  document.getElementById("bbox_result").innerHTML = "";
-      	  
-      	} else {
-          b = bounds.clone().transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"))
-        //  minlon = toPrecision(map.getZoom(), b.left);
-        //  minlat = toPrecision(map.getZoom(), b.bottom);    
-        //  maxlon = toPrecision(map.getZoom(), b.right);
-        //  maxlat = toPrecision(map.getZoom(), b.top);  
-                 
-        //  document.getElementById("bbox_result").innerHTML =
-        //                  "minlon=" + minlon + ", " +
-        //                  "minlat=" + minlat + ", " +
-        //                  "maxlon=" + maxlon + ", " +
-        //                  "maxlat=" + maxlat;  
-        
-			document.getElementById("lat1").value = b.bottom.toFixed(6);
-			document.getElementById("lon2").value = b.left.toFixed(6);
-			
-			document.getElementById("lat2").value = b.top.toFixed(6);
-			document.getElementById("lon1").value = b.right.toFixed(6);		
-		}
-      }
+function newPolygonAdded () { // Polygon über Doppelklick fertig gezeichnet
+	poly.deactivate(); //stops the drawing
+	var poly_coord = polygonLayer.features[0].geometry.getVertices();
+	var anzahl = poly_coord.length;
+	var lon_punkt = new Array(anzahl);
+	var lat_punkt = new Array(anzahl);
+	var LonLat_WGS;
+	var punkt_schreiben = "";
+	
+	for (var i = 0; i < anzahl; i++) {
+		LonLat_WGS = new OpenLayers.LonLat
+			(polygonLayer.features[0].geometry.getVertices()[i].x,polygonLayer.features[0].geometry.getVertices()[i].y)
+			.transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"));
+		lon_punkt[i] = LonLat_WGS.lon;
+		lat_punkt[i] = LonLat_WGS.lat;
+		punkt_schreiben = punkt_schreiben + " " + LonLat_WGS.lon + " " + LonLat_WGS.lat + "\n";
+	}
 
+	document.getElementById("poly_koord").value = punkt_schreiben;
+	var lon_punkt_sortiert = lon_punkt.sort();
+	var lat_punkt_sortiert = lat_punkt.sort();
+			
+	document.getElementById("lat1").value = lat_punkt_sortiert[0].toFixed(6);
+	document.getElementById("lon1").value = lon_punkt_sortiert[0].toFixed(6);
+			
+	document.getElementById("lat2").value = lat_punkt_sortiert[anzahl-1].toFixed(6);
+	document.getElementById("lon2").value = lon_punkt_sortiert[anzahl-1].toFixed(6);	
+
+	document.getElementById("bbox_construct").style.display = 'none';
+	document.getElementById("bpoly_construct").style.display = 'none';
+	document.getElementById("bbox_delete").style.display = 'none';  
+	document.getElementById("bpoly_delete").style.display = 'block'; 
+			
+	document.getElementById("ausw_bpoly").checked = true;
+	document.getElementById("koord_poly").style.display = 'block';
+}   	   
+      
+function endDrag(bbox) { // Bounding Box fertig aufgezogen
+    var bounds = bbox.getBounds();
+    setBounds(bounds);
+    drawBox(bounds);
+    box.deactivate();
+    document.getElementById("bbox_construct").style.display = 'none';
+	document.getElementById("bpoly_construct").style.display = 'none';
+    document.getElementById("bbox_delete").style.display = 'block';  
+	document.getElementById("bpoly_delete").style.display = 'none';
+	document.getElementById("ausw_bbox").checked = true;	
+}
+      
+function box_delete() { // Bounding Box löschen
+    transform.deactivate();
+    boxLayer.destroyFeatures();
+    box.deactivate();
+	
+    document.getElementById("bbox_construct").style.display = 'block';
+	document.getElementById("bpoly_construct").style.display = 'block';
+    document.getElementById("bbox_delete").style.display = 'none';
+	document.getElementById("bpoly_delete").style.display = 'none';
+		
+	document.getElementById("lat1").value = '';
+	document.getElementById("lon1").value = '';			
+	document.getElementById("lat2").value = '';
+	document.getElementById("lon2").value = '';	
+		
+	document.getElementById("ausw_bbox").checked = false;
+        
+    setBounds(null); 
+}
+      
+function boxResize(event) { // Bounding Box verändern
+    setBounds(event.feature.geometry.bounds);
+}
+      
+function drawBox(bounds) {
+    var feature = new OpenLayers.Feature.Vector(bounds.toGeometry());
+    boxLayer.addFeatures(feature);
+    transform.setFeature(feature);
+}
+      
+function setBounds(bounds) {
+     if (bounds == null) {
+      	document.getElementById("bbox_result").innerHTML = "";     	  
+    } 
+	
+	else {
+        b = bounds.clone().transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"))
+        
+		document.getElementById("lat1").value = b.bottom.toFixed(6);
+		document.getElementById("lon2").value = b.left.toFixed(6);			
+		document.getElementById("lat2").value = b.top.toFixed(6);
+		document.getElementById("lon1").value = b.right.toFixed(6);		
+	}
+}
+
+	  
 function error() { // für Benutzer Koordinatenabfrage
     alert("Die Positionsbestimmung ist Fehlgeschlagen!")
 	var lon = 15;
@@ -189,9 +154,6 @@ function drawmap() { // OSM Karte erstellen
     displayProjection: new OpenLayers.Projection("EPSG:4326"),
     controls: [
         new OpenLayers.Control.Navigation(),
-        //  new OpenLayers.Control.LayerSwitcher(),
-		//	new OpenLayers.Control.MouseDefaults(),
-		//	new OpenLayers.Control.Attribution(),
         new OpenLayers.Control.PanZoomBar()],
         maxExtent:
             new OpenLayers.Bounds(-20037508.34,-20037508.34,
@@ -203,23 +165,21 @@ function drawmap() { // OSM Karte erstellen
 
     layer_mapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
     layer_markers = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), 
-    	                                          visibility: true, displayInLayerSwitcher: false });
+    	visibility: true, displayInLayerSwitcher: false });
 	
-                polygonLayer = new OpenLayers.Layer.Vector("Polygon Layer");
-				boxLayer = new OpenLayers.Layer.Vector("Vector Layer");
-                map.addLayers([layer_mapnik, layer_markers, polygonLayer, boxLayer]);
-                map.addControl(new OpenLayers.Control.MousePosition()); // Koordinaten rechts unten in der Karte
+    polygonLayer = new OpenLayers.Layer.Vector("Polygon Layer");
+	boxLayer = new OpenLayers.Layer.Vector("Vector Layer");
+    map.addLayers([layer_mapnik, layer_markers, polygonLayer, boxLayer]);
+    map.addControl(new OpenLayers.Control.MousePosition()); // Koordinaten rechts unten in der Karte
 
-              drawControls = {	
-					'Bounding Polygon': poly = new OpenLayers.Control.DrawFeature(polygonLayer, OpenLayers.Handler.Polygon, 
-                            {eventListeners:{"featureadded": newPolygonAdded}}),  
-				};
+    drawControls = {	
+		'Bounding Polygon': poly = new OpenLayers.Control.DrawFeature(polygonLayer, OpenLayers.Handler.Polygon, 
+        {eventListeners:{"featureadded": newPolygonAdded}}),  
+	};
 				
-                for(var key in drawControls) {
-                    map.addControl(drawControls[key]);
-                }  
-
-				
+    for(var key in drawControls) {
+        map.addControl(drawControls[key]);
+    }  
 				
 	if (navigator.geolocation){
         navigator.geolocation.getCurrentPosition(success, error);	
@@ -231,203 +191,89 @@ function drawmap() { // OSM Karte erstellen
 		var zoom = 7;
 		jumpTo(lon, lat, zoom);
     }
-
-
-	//click = new OpenLayers.Control.Click();
-    //map.addControl(click);
-	//click.activate();	
 }	         
 	
 	
 function bb() {  
-        box = new OpenLayers.Control.DrawFeature(boxLayer, OpenLayers.Handler.RegularPolygon, {
-          handlerOptions: {
-            sides: 4,
-            snapAngle: 90,
-            irregular: true,
-            persist: true
-          }
-        });
-        box.handler.callbacks.done = endDrag;
-        map.addControl(box);
+    box = new OpenLayers.Control.DrawFeature(boxLayer, OpenLayers.Handler.RegularPolygon, {
+        handlerOptions: {
+        sides: 4,
+        snapAngle: 90,
+        irregular: true,
+        persist: true
+        }
+    });
+	
+    box.handler.callbacks.done = endDrag;
+    map.addControl(box);
      
-        transform = new OpenLayers.Control.TransformFeature(boxLayer, {
-          rotate: false,
-          irregular: true
-        });
-        transform.events.register("transformcomplete", transform, boxResize);
-        map.addControl(transform);
-        
-        map.addControl(box);
-        
-        box.activate();
+    transform = new OpenLayers.Control.TransformFeature(boxLayer, {
+        rotate: false,
+        irregular: true
+    });
+	
+    transform.events.register("transformcomplete", transform, boxResize);
+    map.addControl(transform);
+    map.addControl(box);
+    box.activate();
 }
 
-            function toggleControl(element) {
-                for(key in drawControls) {
-                    control = drawControls[key];
-                    if(element.value == key) {
-                        control.activate();						  
-                    } else {
-                        control.deactivate();
-                    }
-                }
-            }
-	
-	function polygon_delete() { // Bounding Polygon löschen
-        //poly.activate();
-        polygonLayer.destroyFeatures();
-		poly.deactivate();
-		document.getElementById("bbox_construct").style.display = 'block';
-		document.getElementById("bpoly_construct").style.display = 'block';
-        document.getElementById("bbox_delete").style.display = 'none';  
-		document.getElementById("bpoly_delete").style.display = 'none'; 
-		
-		document.getElementById("ausw_bpoly").checked = false;
-		
-		document.getElementById("lat1").value = '';
-		document.getElementById("lon1").value = '';			
-		document.getElementById("lat2").value = '';
-		document.getElementById("lon2").value = '';	
-		
-		document.getElementById("poly_koord").value = '';
-		
-		document.getElementById("koord_poly").style.display = 'none';
-    }	
-
-// Koordinaten aus Karte holen und in Felder eintragen
-/*OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {             
-    defaultHandlerOptions: {
-        'single': true,
-        'double': false,
-        'pixelTolerance': 0,
-        'stopSingle': false,
-        'stopDouble': false
-    },
-
-    initialize: function(options) {
-        this.handlerOptions = OpenLayers.Util.extend(
-        {}, this.defaultHandlerOptions
-        );
-        OpenLayers.Control.prototype.initialize.apply(
-        this, arguments
-        ); 
-        this.handler = new OpenLayers.Handler.Click(
-        this, {
-        'click': this.trigger
-        }, this.handlerOptions
-        );
-    }, 
-
-    trigger: function(e) {
-		// Von WGS84 in Mercator Projektion transformieren
-		lonlat = map.getLonLatFromViewPortPx(e.xy).transform(new OpenLayers.Projection("EPSG:900913"), new OpenLayers.Projection("EPSG:4326"));
-		if (document.bounding.punkt_ausw[0].checked == true) { // Koordinaten werden in Textfelder geschrieben
-			var js_lat1 = lonlat.lat.toFixed(6);
-			var js_lon1 = lonlat.lon.toFixed(6);
-			document.getElementById("lat1").value = js_lat1;
-			document.getElementById("lon1").value = js_lon1;
-		}
+function toggleControl(element) {
+    for(key in drawControls) {
+        control = drawControls[key];
+        if(element.value == key) {
+            control.activate();						  
+        } 
 		else {
-			var js_lat2 = lonlat.lat.toFixed(6);
-			var js_lon2 = lonlat.lon.toFixed(6);
-			document.getElementById("lat2").value = js_lat2;
-			document.getElementById("lon2").value = js_lon2;
-		}	           
-				
-			// Bounding Box in Karte einzeichnen, wenn 2 Koordinatenpaare vorhanden
-		if ((document.getElementById("lat2").value) != "" && (document.getElementById("lat1").value) != "" && (document.getElementById("lon2").value) != "" && (document.getElementById("lon1").value) != "") {					
-			if (document.getElementById("lon1").value > document.getElementById("lon2").value) {
-				var bb_lon1 = document.getElementById("lon2").value;
-				var bb_lon2 = document.getElementById("lon1").value; 
-			}
-			else {
-				var bb_lon1 = document.getElementById("lon1").value;
-				var bb_lon2 = document.getElementById("lon2").value;
-			}
-							 
-			if (document.getElementById("lat1").value > document.getElementById("lat2").value) {
-				var bb_lat1 = document.getElementById("lat2").value;
-				var bb_lat2 = document.getElementById("lat1").value;}
-			else {
-				var bb_lat1 = document.getElementById("lat1").value;
-				var bb_lat2 = document.getElementById("lat2").value;
-			}
-			
-			var box_extents = [[bb_lon1,bb_lat1,bb_lon2,bb_lat2]]; // Bounding Box Ecken festlegen
-			var boxes  = new OpenLayers.Layer.Boxes('Boxes');
-			
-			for (var i = 0; i < box_extents.length; i++) {
-				ext = box_extents[i];
-				bounds = OpenLayers.Bounds.fromArray(ext);
-				bounds.transform(new OpenLayers.Projection("EPSG:4326"), new OpenLayers.Projection("EPSG:900913"));
-				box = new OpenLayers.Marker.Box(bounds);
-				boxes.addMarker(box);
-			}
-					map.addLayers([boxes]);
-		}
-	}
-}); */
-
-
-//var click = document.getElementById('click'),
-//    mousemove = document.getElementById('mousemove');
-
-//var map = L.mapbox.map('map');
-
-//map.on('mousemove click', function(e) {
-//    window[e.type].innerHTML = e.containerPoint.toString() + ', ' + e.latlng.toString();
-//});
-
-
-
-
-//function selectBox() {
-//    layer_vectors.destroyFeatures();
-//    polygonControl.activate();
-//}
-
-//function Check() {
-//  if (document.bounding.ZuTesten[0].checked == true) {
-  	//alert (document.bounding.ZuTesten[0].value);
-//    document.bounding.Eingabe.value = "Test 1";
-//	var lonlat = map.getLonLatFromViewPortPx(e.xy).transform(new OpenLayers.Projection("EPSG:900913"), new OpenLayers.Projection("EPSG:4326"));
-//	        document.getElementById("lat").value = lonlat.lat.toFixed(6);
- //           document.getElementById("lon").value = lonlat.lon.toFixed(6);
-//
- // } else {
-    //alert (document.bounding.ZuTesten[1].value);
-//    document.bounding.Eingabe.value = "Test 2";
-//  }
-//}
-
-//]]>
-</script>
+            control.deactivate();
+        }
+    }
+}
 	
+function polygon_delete() { // Bounding Polygon löschen
+    polygonLayer.destroyFeatures();
+	poly.deactivate();
+	document.getElementById("bbox_construct").style.display = 'block';
+	document.getElementById("bpoly_construct").style.display = 'block';
+    document.getElementById("bbox_delete").style.display = 'none';  
+	document.getElementById("bpoly_delete").style.display = 'none'; 
+		
+	document.getElementById("ausw_bpoly").checked = false;
+		
+	document.getElementById("lat1").value = '';
+	document.getElementById("lon1").value = '';			
+	document.getElementById("lat2").value = '';
+	document.getElementById("lon2").value = '';	
+		
+	document.getElementById("poly_koord").value = '';
+		
+	document.getElementById("koord_poly").style.display = 'none';
+}	
+
+</script>	
 	
-    <style>
-    div.olControlAttribution { bottom:3px; }
-    
-    #bbox_delete { display:none; }
-	#bpoly_delete { display:none; }
-	#koord_poly { display:none; }
-	div.olControlMousePosition { 
-		background-color: #000000; 
-		font-weight: bold; 
-	} 
-    </style>
+<style>
+div.olControlAttribution { bottom:3px; }
+#bbox_delete { display:none; }
+#bpoly_delete { display:none; }
+#koord_poly { display:none; }
+div.olControlMousePosition { 
+	background-color: #000000; 
+	font-weight: bold; 
+} 
+</style>
 	
 </head>
-  <h2>OSM-Daten exportieren</h2>
-  
+
+
 <body onload="drawmap();">
- 
-<div id="header">
-<div id="content">Karte (Testversion)</div>
+
+<h2>OSM-Daten exportieren</h2>
+
+
 <div id="osm">© <a href="http://www.openstreetmap.org">OpenStreetMap</a>
 und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 <a href="http://creativecommons.org/licenses/by-sa/2.0/deed.de">CC-BY-SA</a>
-</div>
 </div>
 
 <div id='map'></div>
@@ -442,24 +288,24 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 
 <form name = "bounding" action = "ausfuehrung.php" method = "GET">
 	<b>1. Punkt</b> <br/>
-	<!-- <input type="radio" name="punkt_ausw" value="punkt1" checked="checked" onclick="Check()"></input> -->
 	Geografische Länge:
 	<input type="text" id="lon1" name="lon1" size="10" maxlength="10">
 	Geografische Breite:
 	<input type="text" id="lat1" name="lat1" size="10" maxlength="10"><br/>
 	<b>2. Punkt</b> <br/>
-	<!-- <input type="radio" name="punkt_ausw" value="punkt2" onclick="Check()"></input> -->
 	Geografische Länge:
 	<input type="text" id="lon2" name="lon2" size="10" maxlength="10">
 	Geografische Breite:
 	<input type="text" id="lat2" name="lat2" size="10" maxlength="10"><br/> 
 	<div id="koord_poly"> <font color="#FFAA00">Es werden die Koordinaten der <b>Minimum Bounding Box</b> angezeigt.</font></div>
-	(bei Koordinateneingabe findet keine Visualisierung in der Karte statt)<br/>
-	<br/><b>Welche Elemente sollen beibehalten werden?</b> (Wenn nichts ausgewählt -> alles behalten)<br/>
+	(bei manueller Koordinateneingabe findet keine Visualisierung in der Karte statt)<br/>
+	
+	<br/><b>Welches Element soll beibehalten werden?</b><br/>
 	<select name="tag" size="1">
-      <option value="landuse=">Wald</option>
+      <option value="landuse=forest">Wald</option>
       <option value="highway=">Straßen</option>
       <option value="building=">Gebäude</option>
+	  <option value="landuse=farm =farmland">Felder/Äcker</option>
     </select>
 	<br/>
 	<!--Wald:
@@ -468,7 +314,7 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<input type="checkbox" name="tag[]" value="highway=" ></input><br/>
 	Häuser:
 	<input type="checkbox" name="tag[]" value="building=" ></input><br/> -->
-	OSM-Filter: keep="Folgender Input" (mit obigen Optionen kombinierbar)<br/>
+	OSM-Filter: keep="Folgender Input" (mit obiger Option kombinierbar)<br/>
 	<input type="text" id="keep_eig" name="keep_eig" size="50"><br/>
 	<br/>OSM-Filter: Kompletten Befehl selbst schreiben (Achtung: Obige Optionen werden dabei ignoriert)<br/>
 	<input type="text" id="befehl_eig" name="befehl_eig" size="50"><br/>

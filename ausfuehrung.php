@@ -75,11 +75,8 @@ if (!empty($_GET['keep_eig'])) {// Benutzerdefinierter Tag hinzugefügt
 	else {
 		$tag_ausw = $keep_eig;
 	}
-	//echo $tag_ausw;
-//	$tag = $_GET["tag"];
-//	$tag_ausw = implode(' ',$tag);
-//	$anz = count($tag);
 }
+
 if (!empty($_GET['befehl_eig'])) {// Benutzerdefinierte Tags löschen
 	$befehl_eig = $_GET['befehl_eig'];
 }
@@ -129,8 +126,6 @@ $datei_handle=fopen($dir_daten."/overpass_api.xml","w+"); // .xml für Overpass-
 fwrite($datei_handle,"<osm-script>\r\n<union>\r\n<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>\r\n<recurse type=\"up\"/><recurse type=\"down\"/>\r\n</union>\r\n<print mode=\"meta\" order=\"quadtile\"/>\r\n</osm-script>");
 fclose($datei_handle);
 		
-		
-		//echo "<b>Bounding Box:<b> <br/> West: ".$left."\tOst: ".$right."<br/>Nord: ".$top."\tSüd: ".$bot; }
 set_time_limit(0); // ansonsten nach 30 Sekunden abbruch
 $rueck = " 2>&1"; // Rückgabewert der Tools umleiten
 
@@ -142,21 +137,6 @@ $befehl_overpass = sprintf(
 	);
 
 $output_overpass = shell_exec($befehl_overpass);  // Export mittels wget/Overpass-AP	
-//echo "$output_overpass";	
-
-		//$befehl = '"'.$dir.'\osmosis" --read-pbf file="'.$dir.'\australia-oceania-latest.osm.pbf" --bounding-polygon file='.$dir.'"\country.poly" --write-xml file='.$dir.'"\australia.osm"'.$rueck;
-		//$befehl = sprintf(
-		//	'%s --read-pbf file=%s --bounding-box top='.$top.' bottom='.$bot.' right='.$right.' left='.$left.' --write-xml file=%s 2>&1', // "2>&1" Rückgabewert der Tools anzeigen
-		//	escapeshellarg($dir_osm . '/osmosis'),
-		//	escapeshellarg($dir_osm . '/my.osm.pbf'),
-			//escapeshellarg($dir_osm . '/country.poly'),
-		//	escapeshellarg($dir_osm . '/australia_php.osm')
-		//	);
-		
-		//echo "$befehl";
-		//$output = shell_exec('"D:\Bakk\osmosis-latest\bin\osmosis" --read-pbf file="D:\Bakk\osmosis-latest\bin\australia-oceania-latest.osm.pbf" --bounding-polygon file="D:\Bakk\osmosis-latest\bin\country.poly" --write-xml file="D:\Bakk\osmosis-latest\bin\australia.osm" 2>&1');  
-	
-		//echo "$befehl_overpass";
 
 if (strcmp($bounding_art,'ausw_bpoly') == 0) // wenn Bounding Polygon -> Polygon File erstellen und mittels Osmosis ausschneiden
 {
@@ -215,12 +195,8 @@ else { // nein
 	escapeshellarg($dir_daten . '/output_filter.osm')
 	);
 }
+$output_convert = shell_exec("$befehl_filter");
 
-$output_convert = shell_exec("$befehl_filter $rueck");
-		//$output = shell_exec($befehl);  
-		//echo $befehl_filter;
-		//echo "$output_convert";
-	//}
 	
 $befehl_ogr2ogr = sprintf(
 	"%s par",
@@ -239,24 +215,6 @@ $befehl_ogr2ogr_json = sprintf(
 	escapeshellarg($dir_daten . '/output_filter.osm')
 );
 	
-
-		//echo $befehl_ogr2ogr;
-		//echo $output_ogr2ogr;
-
-
-//$zip_shape = new ZipArchive();
-//$filename = "$dir_daten/outputshape.zip";
-
-//if ($zip_shape->open($filename, ZIPARCHIVE::CREATE)!==TRUE) {
-//    exit("cannot open <$filename>\n");
-//}
-
-//$zip_osm = new ZipArchive();
-//$filename = "$dir_daten/output.zip";
-
-//if ($zip_osm->open($filename, ZIPARCHIVE::CREATE)!==TRUE) {
-//    exit("cannot open <$filename>\n");
-//}
 $filename = "$dir_daten/output.zip";
 $filename_s = "$dir_daten/output_shape.zip";
 $zip = new ZipArchive();
@@ -340,41 +298,8 @@ switch ($typ_ausw) { // welche Downloadoption wurde gewählt
 		break;	
 		
 }
-?>
+?>	
 	
-	
-	<!--	
-	<form action = "karte.html" method = "GET">
-	Noch etwas exportieren?
-	<input type="submit" value="OK"\>
-	</form>
-	<?php
-//	if (file_exists("$dir_daten/output_osm.zip")) {
-//	$zip_osm->open($filename_o);
-//	$anzahl = $zip_osm->numFiles;
-//	$filesize_o = filesize($filename_o);
-//	echo "Anzahl .osm Daten: " . $anzahl . "\n";
-//	echo "</br>Dateigr&#xF6;&#xDF;e: $filesize_o Byte"; 
-//	$zip_osm->close();
-	?>
-	<form action = "download_osm.php" method = "GET">
-	.osm Datei downloaden?
-	<input type="submit" value="OK"\> <?php //} ?>
-	</form>
-	<?php
-//	if (file_exists("$dir_daten/output_shape.zip")) {
-//	$filesize_s = filesize($filename_s);
-//	$anz_shapes = anz_ordner($dir_shape) - 2;
-//	echo "Anzahl Shapes: " . $anz_shapes . "\n";
-//	echo "</br>Dateigr&#xF6;&#xDF;e: $filesize_s Byte"; 
-	
-	?>
-	<form action = "download_shape.php" method = "GET">
-	.shp Datei downloaden?
-	<input type="submit" value="OK"\> !-->
-	<?php //}
-	 // geschwungene Klammer für if empty (Koordinaten)?> 
-	<!--</form> -->
-	
-	</body>	
+</body>	
+
 </html>
