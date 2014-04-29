@@ -457,7 +457,7 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	(bei Koordinateneingabe findet keine Visualisierung in der Karte statt)<br/>
 	<br/><b>Welche Elemente sollen beibehalten werden?</b> (Wenn nichts ausgewählt -> alles behalten)<br/>
 	<select name="tag" size="1">
-      <option value="landuse=forest">Wald</option>
+      <option value="landuse=">Wald</option>
       <option value="highway=">Straßen</option>
       <option value="building=">Gebäude</option>
     </select>
@@ -477,32 +477,47 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	Weitere Informationen: <a href="http://wiki.openstreetmap.org/wiki/DE:Osmfilter">OSM Wiki: OSM-Filter</a><br>
 	
 	<br/><b>Export als</b><br/>
-	Shapefile (.shp):
-	<input type="checkbox" name="typ[]" value="shp" checked="checked"></input><br/>
-	OpenStreetMap-Datei (.osm):
-	<input type="checkbox" name="typ[]" value="osm" ></input><br/><br/>
-	
-	<b>Shapefiles als: </b>
-	 <!-- Shapefiles -->
-    <select name="shapes" size="1">
-      <option value="multipolygons">Polygone</option>
-      <option value="lines">Linien</option>
-      <option value="points">Punkte</option>
-    </select>
+	<table border="0">
+		<tr>			
+			<td>Shapefile (.shp):</td>
+			<td><input type="checkbox" name="typ[]" value="shp" checked="checked"></input></td>
+		</tr>
+		<tr>
+			<td>OpenStreetMap-Datei (.osm):</td>
+			<td><input type="checkbox" name="typ[]" value="osm" ></input></td>
+		</tr>
+		<tr>
+			<td>GeoJSON-Datei (.geojson):</td>
+			<td><input type="checkbox" name="typ[]" value="json" ></input><br/></td>
+		</tr>
+	</table>
 	<br/>
-	
-	<b>Serverauswahl:</b>
-	 <!-- Serverauswahl -->
-    <select name="server" size="1">
-      <option value="http://www.overpass-api.de/api/">Deutschland</option>
-      <option value="http://overpass.osm.rambler.ru/cgi/">Russland</option>
-      <option value="http://api.openstreetmap.fr/oapi/">Frankreich</option>
-    </select>
-	<br/>
+	<table border="0">
+		<tr>
+			<td><b>Shapefiles bzw. GeoJSON als:</b></td>
+			 <!-- Shapefiles -->
+			<td><select name="shapes" size="1" style="width: 100px">
+			  <option value="multipolygons">Polygone</option>
+			  <option value="lines">Linien</option>
+			  <option value="points">Punkte</option>
+			</select>
+			</td>
+		</tr>
+		<tr>
+			<td><b>Serverauswahl:</b></td>
+			 <!-- Serverauswahl -->
+			<td><select name="server" size="1" style="width: 100px">
+			  <option value="http://www.overpass-api.de/api/">Deutschland</option>
+			  <option value="http://overpass.osm.rambler.ru/cgi/">Russland</option>
+			  <option value="http://api.openstreetmap.fr/oapi/">Frankreich</option>
+			</select>
+			</td>
+		</tr>
+	</table>
 	
 	<!-- wurde Bounding Box oder Polygon gezeichnet -->
-	<input type="checkbox" id="ausw_bbox" name="ausw_bounding" value="loesch_ja" style="display:none;"></input> 
-	<input type="checkbox" id="ausw_bpoly" name="ausw_bounding" value="loesch_nein" style="display:none;"></input>
+	<input type="checkbox" id="ausw_bbox" name="ausw_bounding" value="ausw_bbox" style="display:none;"></input> 
+	<input type="checkbox" id="ausw_bpoly" name="ausw_bounding" value="ausw_bpoly" style="display:none;"></input>
 	<!-- Koordinaten des Bounding Polygons -->
 	<textarea name="poly_koord" id="poly_koord" rows="8" cols="80" tabindex="3" style="display:none;"></textarea>
 	
