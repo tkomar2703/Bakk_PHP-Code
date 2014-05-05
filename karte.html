@@ -300,7 +300,7 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<div id="koord_poly"> <font color="#FFAA00">Es werden die Koordinaten der <b>Minimum Bounding Box</b> angezeigt.</font></div>
 	(bei manueller Koordinateneingabe findet keine Visualisierung in der Karte statt)<br/>
 	
-	<br/><b>Welches Element soll beibehalten werden?</b><br/>
+	<br/><b>Welches Element soll exportiert werden?</b><br/>
 	<select name="tag" size="1">
       <option value="landuse=forest">Wald</option>
       <option value="highway=">Straßen</option>
@@ -314,7 +314,7 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<input type="checkbox" name="tag[]" value="highway=" ></input><br/>
 	Häuser:
 	<input type="checkbox" name="tag[]" value="building=" ></input><br/> -->
-	OSM-Filter: keep="Folgender Input" (mit obiger Option kombinierbar)<br/>
+	OSM-Filter: keep="<font color="#FF0000">Folgender Input</font>" (mit obiger Option kombinierbar)<br/>
 	<input type="text" id="keep_eig" name="keep_eig" size="50"><br/>
 	<br/>OSM-Filter: Kompletten Befehl selbst schreiben (Achtung: Obige Optionen werden dabei ignoriert)<br/>
 	<input type="text" id="befehl_eig" name="befehl_eig" size="50"><br/>
@@ -367,15 +367,15 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<!-- Koordinaten des Bounding Polygons -->
 	<textarea name="poly_koord" id="poly_koord" rows="8" cols="80" tabindex="3" style="display:none;"></textarea>
 	
-	<br/><b>Exportierte Daten löschen?</b> (Auswahl in fertiger Arbeit nicht mehr vorhanden)<br/>
-	Ja:
-	<input type="radio" name="loeschen" value="loesch_ja" checked="checked"></input>
-	Nein:
-	<input type="radio" name="loeschen" value="loesch_nein" ></input><br/>
-	<br/>
-	<input type="submit" value="OK"\>
-	<input type="reset" value="Abbrechen"\>
-	<br/>(Mit Klick auf "OK" werden die Daten bereits runtergeladen)<br/>
+	<!-- Zu Testzwecken, Auswahl ob lokale Dateien nach Download gelöscht werden sollen -->
+	<!--<br/><b>Exportierte Daten löschen?</b> (Auswahl in fertiger Arbeit nicht mehr vorhanden)<br/>
+	Ja: -->
+	<input type="radio" name="loeschen" value="loesch_ja" checked="checked" style="display:none;"></input>
+	<!--Nein: -->
+	<input type="radio" name="loeschen" value="loesch_nein" style="display:none;"></input><br/>
+	
+	<input type="submit" value="Download" style="font-weight: bold; width: 150px;"></input>
+	<br/><br/>
 	<b>Achtung: Je nach Größe der Bounding Box/Bounding Polygon kann die Verarbeitung mehrere Minuten oder Stunden dauern.<br/><br/><br/><br/>
 
 </form>
