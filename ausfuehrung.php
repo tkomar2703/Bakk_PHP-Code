@@ -68,13 +68,13 @@ $tag_ausw = $_GET['tag']; // welcher Tag wurde ausgewählt
 //	$anz = count($tag);
 } */
 if (!empty($_GET['keep_eig'])) {// Benutzerdefinierter Tag hinzugefügt
-	$keep_eig = $_GET['keep_eig'];
-	if (isset($_GET['tag'])) {
-		$tag_ausw = $tag_ausw." ".$keep_eig;
-	}
-	else {
-		$tag_ausw = $keep_eig;
-	}
+	$tag_ausw = $_GET['keep_eig'];
+	//if (isset($_GET['tag'])) {
+	//	$tag_ausw = $tag_ausw." ".$keep_eig;
+	//}
+	//else {
+	//	$tag_ausw = $keep_eig;
+	//}
 }
 
 if (!empty($_GET['befehl_eig'])) {// Benutzerdefinierte Tags löschen
@@ -121,9 +121,47 @@ else {
 	$left = $lon1;
 	$right = $lon2; 
 	}
-	
+$tag_teile=explode("=", $tag_ausw);	
 $datei_handle=fopen($dir_daten."/overpass_api.xml","w+"); // .xml für Overpass-API
-fwrite($datei_handle,"<osm-script>\r\n<union>\r\n<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>\r\n<recurse type=\"up\"/><recurse type=\"down\"/>\r\n</union>\r\n<print mode=\"meta\" order=\"quadtile\"/>\r\n</osm-script>");
+if (strcmp($bounding_art,'ausw_bbox') == 0) {
+$bbox = "<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>";
+fwrite($datei_handle,
+"<osm-script output=\"xml\">
+	<union>
+		<query type=\"node\">\r\n
+			<has-kv k=\"".$tag_teile[0]."\" v=\"".$tag_teile[1]."\"/>
+			".$bbox."
+		</query>	
+		<query type=\"way\">
+			<has-kv k=\"".$tag_teile[0]."\" v=\"".$tag_teile[1]."\"/>
+			".$bbox."
+		</query>	
+	</union>
+<print mode=\"meta\"/>
+<recurse type=\"down\"/>
+<print mode=\"meta\" order=\"quadtile\"/>
+</osm-script>"); }
+	
+elseif (strcmp($bounding_art,'ausw_bpoly') == 0) {
+$poly_koord = $_GET["poly_koord"];
+fwrite($datei_handle,
+"<osm-script output=\"xml\">
+	<union>
+		<query type=\"node\">
+			<has-kv k=\"".$tag_teile[0]."\" v=\"".$tag_teile[1]."\"/>
+			<polygon-query bounds=\"\r\n".$poly_koord."\"/>
+		</query>	
+		<query type=\"way\">
+			<has-kv k=\"".$tag_teile[0]."\" v=\"".$tag_teile[1]."\"/>
+			<polygon-query bounds=\"\r\n".$poly_koord."\"/>
+		</query>	
+	</union>
+<print mode=\"meta\"/>
+<recurse type=\"down\"/>
+<print mode=\"meta\" order=\"quadtile\"/>
+</osm-script>"); }
+// fwrite($datei_handle,"<osm-script>\r\n<union>\r\n<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>\r\n<recurse type=\"up\"/><recurse type=\"down\"/>\r\n</union>\r\n<print mode=\"meta\" order=\"quadtile\"/>\r\n</osm-script>");
+
 fclose($datei_handle);
 		
 set_time_limit(0); // ansonsten nach 30 Sekunden abbruch
@@ -138,7 +176,7 @@ $befehl_overpass = sprintf(
 
 $output_overpass = shell_exec($befehl_overpass);  // Export mittels wget/Overpass-AP	
 
-if (strcmp($bounding_art,'ausw_bpoly') == 0) // wenn Bounding Polygon -> Polygon File erstellen und mittels Osmosis ausschneiden
+/*if (strcmp($bounding_art,'ausw_bpoly') == 0) // wenn Bounding Polygon -> Polygon File erstellen und mittels Osmosis ausschneiden
 {
 	$poly_koord = $_GET["poly_koord"];
 	$datei_handle_poly=fopen($dir_daten."/poly_koord.poly","w+"); // .xml für Overpass-API
@@ -157,9 +195,9 @@ $output_osmosis = shell_exec($befehl_osmosis);
 $file_convert = '/output_osmosis.osm';
 }
 		
-else {$file_convert = '/output_overpass.osm';}
+else {$file_convert = '/output_overpass.osm';} */
 
-$befehl_convert_to_o5m = sprintf(
+/*$befehl_convert_to_o5m = sprintf(
 	'%s %s -o=%s',
 	escapeshellarg($dir_convert_filter . '/osmconvert'),
 	escapeshellarg($dir_daten . $file_convert),
@@ -195,7 +233,7 @@ else { // nein
 	escapeshellarg($dir_daten . '/output_filter.osm')
 	);
 }
-$output_convert = shell_exec("$befehl_filter");
+$output_convert = shell_exec("$befehl_filter"); */
 
 	
 $befehl_ogr2ogr = sprintf(
@@ -206,13 +244,13 @@ $befehl_ogr2ogr = sprintf(
 $befehl_ogr2ogr_shape = sprintf(
 	"SET par=ogr2ogr -f \"ESRI Shapefile\" %s %s ".$shapes." --config OSM_USE_CUSTOM_INDEXING NO",
 	escapeshellarg($dir_shape . "/shape"),
-	escapeshellarg($dir_daten . '/output_filter.osm')
+	escapeshellarg($dir_daten . '/output_overpass.osm')
 );
 
 $befehl_ogr2ogr_json = sprintf(
 	"SET par=ogr2ogr -f \"GeoJSON\" %s %s ".$shapes." --config OSM_USE_CUSTOM_INDEXING NO",
 	escapeshellarg($dir_daten . "/output_geojson.geojson"),
-	escapeshellarg($dir_daten . '/output_filter.osm')
+	escapeshellarg($dir_daten . '/output_overpass.osm')
 );
 	
 $filename = "$dir_daten/output.zip";
@@ -235,7 +273,7 @@ switch ($typ_ausw) { // welche Downloadoption wurde gewählt
 		if ($zip->open($filename, ZIPARCHIVE::CREATE)!==TRUE) {
 			exit("cannot open <$filename>\n");
 		}
-		$zip->addFile($dir_daten . "/output_filter.osm","output_filter.osm");
+		$zip->addFile($dir_daten . '/output_overpass.osm',"output_filter.osm");
 		$zip->close();
 		header ("Location: download.php?loeschen=".$loeschen);
 		break;
@@ -244,7 +282,7 @@ switch ($typ_ausw) { // welche Downloadoption wurde gewählt
 		if ($zip->open($filename, ZIPARCHIVE::CREATE)!==TRUE) {
 			exit("cannot open <$filename>\n");
 		}
-		$zip->addFile($dir_daten . "/output_filter.osm","output_filter.osm");
+		$zip->addFile($dir_daten . '/output_overpass.osm',"output_filter.osm");
 		$output_ogr2ogr_shape = shell_exec("$befehl_ogr2ogr_shape && $befehl_ogr2ogr");
 		zippen($dir_shape, $zip);
 		$zip->close();
@@ -266,7 +304,7 @@ switch ($typ_ausw) { // welche Downloadoption wurde gewählt
 			exit("cannot open <$filename>\n");
 		}
 		$output_ogr2ogr_geojson = shell_exec("$befehl_ogr2ogr_json && $befehl_ogr2ogr");
-		$zip->addFile($dir_daten . "/output_filter.osm","output_filter.osm");
+		$zip->addFile($dir_daten . '/output_overpass.osm',"output_filter.osm");
 		$zip->addFile($dir_daten . "/output_geojson.geojson","output_geojson.geojson");
 		$zip->close();
 		header ("Location: download.php?loeschen=".$loeschen); 
@@ -289,7 +327,7 @@ switch ($typ_ausw) { // welche Downloadoption wurde gewählt
 			exit("cannot open <$filename>\n");
 		}
 		$output_ogr2ogr_geojson = shell_exec("$befehl_ogr2ogr_json && $befehl_ogr2ogr");
-		$zip->addFile($dir_daten . "/output_filter.osm","output_filter.osm");
+		$zip->addFile($dir_daten . '/output_overpass.osm',"output_filter.osm");
 		$zip->addFile($dir_daten . "/output_geojson.geojson","output_geojson.geojson");
 		$output_ogr2ogr_shape = shell_exec("$befehl_ogr2ogr_shape && $befehl_ogr2ogr");
 		zippen($dir_shape, $zip);

@@ -48,7 +48,7 @@ function newPolygonAdded () { // Polygon über Doppelklick fertig gezeichnet
 			.transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"));
 		lon_punkt[i] = LonLat_WGS.lon;
 		lat_punkt[i] = LonLat_WGS.lat;
-		punkt_schreiben = punkt_schreiben + " " + LonLat_WGS.lon + " " + LonLat_WGS.lat + "\n";
+		punkt_schreiben = punkt_schreiben + " " + LonLat_WGS.lat + " " + LonLat_WGS.lon + "\n";
 	}
 
 	document.getElementById("poly_koord").value = punkt_schreiben;
@@ -300,12 +300,13 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<div id="koord_poly"> <font color="#FFAA00">Es werden die Koordinaten der <b>Minimum Bounding Box</b> angezeigt.</font></div>
 	(bei manueller Koordinateneingabe findet keine Visualisierung in der Karte statt)<br/>
 	
-	<br/><b>Welches Element soll exportiert werden?</b><br/>
+	<br/><b>Welches Attribut soll exportiert werden?</b><br/>
 	<select name="tag" size="1">
       <option value="landuse=forest">Wald</option>
       <option value="highway=">Straßen</option>
       <option value="building=">Gebäude</option>
-	  <option value="landuse=farm =farmland">Felder/Äcker</option>
+	  <option value="landuse=farmland">Felder/Äcker</option>
+	  <option value="amenity=drinking_water">Trinkbrunnen</option>
     </select>
 	<br/>
 	<!--Wald:
@@ -314,14 +315,17 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<input type="checkbox" name="tag[]" value="highway=" ></input><br/>
 	Häuser:
 	<input type="checkbox" name="tag[]" value="building=" ></input><br/> -->
-	OSM-Filter: keep="<font color="#FF0000">Folgender Input</font>" (mit obiger Option kombinierbar)<br/>
+	Wenn Attribut nicht in Liste vorhanden, bitte selbst formulieren:<br/>
 	<input type="text" id="keep_eig" name="keep_eig" size="50"><br/>
-	<br/>OSM-Filter: Kompletten Befehl selbst schreiben (Achtung: Obige Optionen werden dabei ignoriert)<br/>
+	Beispiel: "landuse=forest" (ohne Anführungszeichen) für Wald<br/>
+	<b>Achtung: Nur ein Attribut zulässig</b><br/>
+	weitere Informationen: <a href="http://wiki.openstreetmap.org/wiki/DE:Tags">OSM Wiki: Attribute</a><br/>
+<!--	<br/>OSM-Filter: Kompletten Befehl selbst schreiben (Achtung: Obige Optionen werden dabei ignoriert)<br/>
 	<input type="text" id="befehl_eig" name="befehl_eig" size="50"><br/>
 	<u>Beispiel:</u> ./osmfilter norway.osm <font color="#FF0000">--keep="highway=primary =secondary waterway=river"</font> -o=streets.osm<br/>
 	Befehl in <font color="#FF0000">rot</font> selbst formulieren.<br/>
 	Weitere Informationen: <a href="http://wiki.openstreetmap.org/wiki/DE:Osmfilter">OSM Wiki: OSM-Filter</a><br>
-	
+	-->
 	<br/><b>Export als</b><br/>
 	<table border="0">
 		<tr>			
@@ -370,9 +374,9 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 	<!-- Zu Testzwecken, Auswahl ob lokale Dateien nach Download gelöscht werden sollen -->
 	<!--<br/><b>Exportierte Daten löschen?</b> (Auswahl in fertiger Arbeit nicht mehr vorhanden)<br/>
 	Ja: -->
-	<input type="radio" name="loeschen" value="loesch_ja" checked="checked" style="display:none;"></input>
+	<input type="radio" name="loeschen" value="loesch_ja" checked="checked" ></input>
 	<!--Nein: -->
-	<input type="radio" name="loeschen" value="loesch_nein" style="display:none;"></input><br/>
+	<input type="radio" name="loeschen" value="loesch_nein" ></input><br/>
 	
 	<input type="submit" value="Download" style="font-weight: bold; width: 150px;"></input>
 	<br/><br/>
