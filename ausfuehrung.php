@@ -121,6 +121,7 @@ else {
 	$left = $lon1;
 	$right = $lon2; 
 	}
+// $datei_handle=fopen($dir_daten."/overpass_api.xml","w+"); // .xml für Overpass-API
 $tag_teile=explode("=", $tag_ausw);	
 $datei_handle=fopen($dir_daten."/overpass_api.xml","w+"); // .xml für Overpass-API
 if (strcmp($bounding_art,'ausw_bbox') == 0) {
@@ -136,12 +137,20 @@ fwrite($datei_handle,
 			<has-kv k=\"".$tag_teile[0]."\" v=\"".$tag_teile[1]."\"/>
 			".$bbox."
 		</query>	
+		<query type=\"relation\">
+			<has-kv k=\"".$tag_teile[0]."\" v=\"".$tag_teile[1]."\"/>
+			".$bbox."
+		</query>	
 	</union>
-<print mode=\"meta\"/>
-<recurse type=\"down\"/>
+	<union>
+		<item/>
+		<recurse type=\"down\"/>
+    </union>
 <print mode=\"meta\" order=\"quadtile\"/>
 </osm-script>"); }
-	
+
+//	<print mode=\"meta\"/>
+//<recurse type=\"down\"/>
 elseif (strcmp($bounding_art,'ausw_bpoly') == 0) {
 $poly_koord = $_GET["poly_koord"];
 fwrite($datei_handle,
@@ -155,12 +164,18 @@ fwrite($datei_handle,
 			<has-kv k=\"".$tag_teile[0]."\" v=\"".$tag_teile[1]."\"/>
 			<polygon-query bounds=\"\r\n".$poly_koord."\"/>
 		</query>	
+		<query type=\"relation\">
+			<has-kv k=\"".$tag_teile[0]."\" v=\"".$tag_teile[1]."\"/>
+			<polygon-query bounds=\"\r\n".$poly_koord."\"/>
+		</query>	
 	</union>
-<print mode=\"meta\"/>
-<recurse type=\"down\"/>
+	<union>
+		<item/>
+		<recurse type=\"down\"/>
+    </union>
 <print mode=\"meta\" order=\"quadtile\"/>
 </osm-script>"); }
-// fwrite($datei_handle,"<osm-script>\r\n<union>\r\n<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>\r\n<recurse type=\"up\"/><recurse type=\"down\"/>\r\n</union>\r\n<print mode=\"meta\" order=\"quadtile\"/>\r\n</osm-script>");
+//fwrite($datei_handle,"<osm-script>\r\n<union>\r\n<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>\r\n<recurse type=\"up\"/><recurse type=\"down\"/>\r\n</union>\r\n<print mode=\"meta\" order=\"quadtile\"/>\r\n</osm-script>");
 
 fclose($datei_handle);
 		
@@ -196,6 +211,7 @@ $file_convert = '/output_osmosis.osm';
 }
 		
 else {$file_convert = '/output_overpass.osm';} */
+// else {$file_convert = '/output_filter.osm';}
 
 /*$befehl_convert_to_o5m = sprintf(
 	'%s %s -o=%s',
@@ -244,6 +260,7 @@ $befehl_ogr2ogr = sprintf(
 $befehl_ogr2ogr_shape = sprintf(
 	"SET par=ogr2ogr -f \"ESRI Shapefile\" %s %s ".$shapes." --config OSM_USE_CUSTOM_INDEXING NO",
 	escapeshellarg($dir_shape . "/shape"),
+	//escapeshellarg($dir_daten . '/output_filter.osm')
 	escapeshellarg($dir_daten . '/output_overpass.osm')
 );
 
@@ -282,6 +299,7 @@ switch ($typ_ausw) { // welche Downloadoption wurde gewählt
 		if ($zip->open($filename, ZIPARCHIVE::CREATE)!==TRUE) {
 			exit("cannot open <$filename>\n");
 		}
+		//$zip->addFile($dir_daten . $file_convert,"output_filter.osm");
 		$zip->addFile($dir_daten . '/output_overpass.osm',"output_filter.osm");
 		$output_ogr2ogr_shape = shell_exec("$befehl_ogr2ogr_shape && $befehl_ogr2ogr");
 		zippen($dir_shape, $zip);
