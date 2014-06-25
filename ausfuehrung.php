@@ -124,7 +124,7 @@ else {
 // $datei_handle=fopen($dir_daten."/overpass_api.xml","w+"); // .xml für Overpass-API
 $tag_teile=explode("=", $tag_ausw);	
 $datei_handle=fopen($dir_daten."/overpass_api.xml","w+"); // .xml für Overpass-API
-if (strcmp($bounding_art,'ausw_bbox') == 0) {
+if (strcmp($bounding_art,'ausw_bbox') == 0 || strcmp($bounding_art,'ausw_manuel') == 0) {
 $bbox = "<bbox-query e=\"".$right."\" n=\"".$top."\" s=\"".$bot."\" w=\"".$left."\"/>";
 fwrite($datei_handle,
 "<osm-script output=\"xml\">

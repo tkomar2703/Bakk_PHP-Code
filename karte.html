@@ -67,6 +67,7 @@ function newPolygonAdded () { // Polygon über Doppelklick fertig gezeichnet
 	document.getElementById("bpoly_delete").style.display = 'block'; 
 			
 	document.getElementById("ausw_bpoly").checked = true;
+	document.getElementById("ausw_manuel").checked = false;
 	document.getElementById("koord_poly").style.display = 'block';
 }   	   
       
@@ -80,6 +81,7 @@ function endDrag(bbox) { // Bounding Box fertig aufgezogen
     document.getElementById("bbox_delete").style.display = 'block';  
 	document.getElementById("bpoly_delete").style.display = 'none';
 	document.getElementById("ausw_bbox").checked = true;	
+	document.getElementById("ausw_manuel").checked = false;
 }
       
 function box_delete() { // Bounding Box löschen
@@ -98,6 +100,7 @@ function box_delete() { // Bounding Box löschen
 	document.getElementById("lon2").value = '';	
 		
 	document.getElementById("ausw_bbox").checked = false;
+	document.getElementById("ausw_manuel").checked = true;
         
     setBounds(null); 
 }
@@ -239,6 +242,7 @@ function polygon_delete() { // Bounding Polygon löschen
 	document.getElementById("bpoly_delete").style.display = 'none'; 
 		
 	document.getElementById("ausw_bpoly").checked = false;
+	document.getElementById("ausw_manuel").checked = true;
 		
 	document.getElementById("lat1").value = '';
 	document.getElementById("lon1").value = '';			
@@ -365,7 +369,8 @@ und <a href="http://www.openstreetmap.org/copyright">Mitwirkende</a>,
 		</tr>
 	</table>
 	
-	<!-- wurde Bounding Box oder Polygon gezeichnet -->
+	<!-- wurde Bounding Box oder Polygon gezeichnet oder manuelle Koordinateneingabe -->
+	<input type="checkbox" id="ausw_manuel" name="ausw_bounding" value="ausw_manuel" checked="checked" style="display:none;"></input>
 	<input type="checkbox" id="ausw_bbox" name="ausw_bounding" value="ausw_bbox" style="display:none;"></input> 
 	<input type="checkbox" id="ausw_bpoly" name="ausw_bounding" value="ausw_bpoly" style="display:none;"></input>
 	<!-- Koordinaten des Bounding Polygons -->
